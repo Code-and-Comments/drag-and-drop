@@ -8,12 +8,10 @@ import { SelectableDirective } from './selectable.directive';
   declarations: [
     DropableDirective,
     DraggableDirective,
-    SelectableDirective
   ],
   exports: [
     DropableDirective,
     DraggableDirective,
-    SelectableDirective
   ]
 })
 export class DndDirectiveModule {}

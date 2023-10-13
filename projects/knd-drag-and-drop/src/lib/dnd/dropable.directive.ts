@@ -1,5 +1,4 @@
 import { Directive, Output, EventEmitter, HostBinding, HostListener, Input } from '@angular/core';
-import { idPropertyKey } from './dnd.module';
 import { DropInfo } from './models';
 
 @Directive({

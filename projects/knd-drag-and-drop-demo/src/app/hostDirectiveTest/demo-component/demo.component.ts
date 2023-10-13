@@ -1,21 +1,33 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { TestDirective } from '../test.directive';
+import { Component, Input, OnInit, inject } from '@angular/core';
+import { KndDndService } from 'projects/knd-drag-and-drop/src/public-api';
+import { DemoType } from '../../models';
+import { SelectableDirective } from 'projects/knd-drag-and-drop/src/lib/dnd/selectable.directive';
+import { DraggableDirective } from 'projects/knd-drag-and-drop/src/lib/dnd/draggable.directive';
 
 @Component({
   selector: 'cp-demo',
   templateUrl: './demo.component.html',
   styleUrls: ['./demo.component.scss'],
   standalone: true,
-  hostDirectives: [TestDirective]
+  hostDirectives: [{
+    directive: SelectableDirective,
+    inputs: ['kndItem'],
+  },
+  {
+    directive: DraggableDirective,
+    inputs: ['kndItem'],
+  }],
 })
-export class DemoComponent implements OnInit {
-  private testDirective: TestDirective = inject(TestDirective, {self: true})
+export class DemoComponent {
 
-  ngOnInit() {
-    this.logSmth();
+  @Input({required: true }) item: DemoType
+
+  private selectableDirective = inject(SelectableDirective, {self: true})
+
+  selectItem() {
+    this.selectableDirective.selectItem();
   }
-
-  logSmth() {
-    this.testDirective.logSmth();
+  deSelectItem() {
+    this.selectableDirective.deSelectItem();
   }
 }
