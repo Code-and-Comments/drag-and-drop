@@ -1,7 +1,9 @@
 import { BehaviorSubject, Observable, map } from 'rxjs';
+import { KndDndConfig } from './dnd/dnd.provider';
 
 type Identifier = String
 
+// to override css classes set or selectUniqueIdentifier override this class
 export class KndDndService<Item extends object> {
 
   private selectedItems = new BehaviorSubject(this.createEmptyMap());
@@ -11,12 +13,11 @@ export class KndDndService<Item extends object> {
   */
   public selectedItems$ = this.selectedItems.asObservable();
 
-  private isDragging = new BehaviorSubject(false);
   /**
    * Tracks if a dragging process is currently ongoing  
    * `true` if is dragging, `false` if not
   */
-  public isDragging$ = this.isDragging.asObservable();
+  public isDragging = new BehaviorSubject(false);
 
   /**
    * Select uniquie identifiably property of Item.  

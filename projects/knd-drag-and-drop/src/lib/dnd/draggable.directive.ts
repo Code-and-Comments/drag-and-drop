@@ -1,15 +1,18 @@
 import { Directive, ElementRef, HostBinding, HostListener, Inject, Input, OnInit, inject } from '@angular/core';
 import { defaultKndDndConfig } from './dnd.provider';
 import { KndDndService } from '../knd-dnd.service';
+import { combineLatest } from 'rxjs';
 
 @Directive({
   selector: '[kndDraggable]',
   standalone: true,
 })
-export class DraggableDirective<Item extends object> {
+export class DraggableDirective<Item extends object> implements OnInit {
+
   @Input({ required: true }) kndItem: Item;
   // enables html dragging
   @HostBinding('draggable') draggable = true;
+  @HostBinding(`class.${defaultKndDndConfig.dragIsDragging}`) private isDragging = false;
 
   private dndSettings = defaultKndDndConfig;
   private dndService = inject(KndDndService<Item>);
@@ -22,12 +25,13 @@ export class DraggableDirective<Item extends object> {
     evt.dataTransfer?.setDragImage(dragUI, 0, 0);
     // remove dragUI from DOM after it got picked up by setDragImage magic
     setTimeout((_: any) => dragUIRoot.removeChild(dragUI), 5);
+    this.dndService.isDragging.next(true);
 
     // evt.dataTransfer?.setData('', JSON.stringify(ids));
   }
 
   @HostListener('dragend', ['$event']) ondrop(_evt: DragEvent) {
-    console.log('dragend');
+    this.dndService.isDragging.next(false);
   }
 
   createDragUI(): HTMLElement {
@@ -41,5 +45,12 @@ export class DraggableDirective<Item extends object> {
     dragUI.style.width = '100px';
     dragUI.style.backgroundColor = 'green';
     return dragUI;
+  }
+
+  ngOnInit() {
+    combineLatest([
+      this.dndService.createHasItemObservable(this.kndItem),
+      this.dndService.isDragging
+    ]).subscribe(([isSelected, isDragging]) => this.isDragging = isSelected && isDragging)
   }
 }

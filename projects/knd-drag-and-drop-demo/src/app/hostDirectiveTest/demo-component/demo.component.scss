@@ -4,3 +4,9 @@
     background-color: red;
     padding: 16px;
 }
+
+:host {
+    &.knd-drag-isDragging {
+        opacity: 0.5;
+    }
+}
