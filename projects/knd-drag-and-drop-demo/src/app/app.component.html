@@ -1,3 +1,9 @@
-<div class="cp-demo-wrapper">
-  <cp-demo *ngFor="let item of items" [item]="item" [kndItem]="item" draggable="true"></cp-demo>
+<div class="cp-drag-wrapper">
+  <cp-drop [kndDropId]="'1'"></cp-drop>
+  <cp-drop [kndDropId]="'2'"></cp-drop>
+  <cp-drop [kndDropId]="'3'" (gotDropped)="gotDropped($event)"></cp-drop>
+</div>
+<br><br><br><br><br><br>
+<div class="cp-drag-wrapper">
+  <cp-drag *ngFor="let item of items" [item]="item" [kndItem]="item"></cp-drag>
 </div>

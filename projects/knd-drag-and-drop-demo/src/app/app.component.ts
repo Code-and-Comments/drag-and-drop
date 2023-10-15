@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { DemoType } from './models';
 import { KndDndService } from 'projects/knd-drag-and-drop/src/public-api';
+import { DropInfo } from 'projects/knd-drag-and-drop/src/lib/dnd/dropable.directive';
 
 @Component({
   selector: 'app-root',
@@ -13,8 +14,16 @@ export class AppComponent implements OnInit {
   private dndService = inject(KndDndService<DemoType>);
 
   ngOnInit() {
+    this.createItems();
+    this.dndService.selectedItems$.subscribe(items => console.log('currentDndContext', items));
+  }
+
+  createItems() {
     const arr = Array.from(Array(10)).map((_, i) => i);
     arr.forEach(index => this.items.push({ id: `${index}`, name: `Item ${index}`}));
-    this.dndService.selectedItems$.subscribe(items => console.log(items));
+  }
+
+  gotDropped(drop: DropInfo<DemoType>)  {
+    console.log('drop', drop);
   }
 }

@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
-import { DemoComponent } from './hostDirectiveTest/demo-component/demo.component';
 import { KndDndService } from 'projects/knd-drag-and-drop/src/public-api';
 import { DemoType } from './models';
+import { DropComponent } from './hostDirectiveTest/drop-component/drop.component';
+import { DragComponent } from './hostDirectiveTest/drag-component/drag.component';
 
 @NgModule({
   declarations: [
@@ -11,7 +12,8 @@ import { DemoType } from './models';
   ],
   imports: [
     BrowserModule,
-    DemoComponent,
+    DragComponent,
+    DropComponent
   ],
   providers: [
     KndDndService<DemoType>,

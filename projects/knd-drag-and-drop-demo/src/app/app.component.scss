@@ -1,4 +1,10 @@
-.cp-demo-wrapper {
+.cp-drag-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.cp-drop-wrapper {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
