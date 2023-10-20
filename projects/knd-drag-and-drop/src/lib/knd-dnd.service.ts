@@ -1,11 +1,13 @@
-import { BehaviorSubject, Observable, map } from 'rxjs';
-import { KndDndConfig } from './dnd/dnd.provider';
+import { BehaviorSubject, Observable, Subscription, map } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { KndDrawService } from './knd-draw.service';
 
 type Identifier = String
 
 // to override css classes set or selectUniqueIdentifier override this class
+@Injectable()
 export class KndDndService<Item extends object> {
-
+  private drawService =  inject(KndDrawService);
   private selectedItems = new BehaviorSubject(this.createEmptyMap());
   /**
    * Full map of items in dnd context. The key of the map is defined via function `selectUniqueIdentifier`.  
@@ -18,6 +20,17 @@ export class KndDndService<Item extends object> {
    * `true` if is dragging, `false` if not
   */
   public isDragging = new BehaviorSubject(false);
+  private isDraggingSub: Subscription;
+
+  constructor() {
+    this.isDraggingSub = this.isDragging.subscribe(isDragging => {
+      if (isDragging) {
+        const cnt = [...this.selectedItems.value.keys()].length;
+        this.drawService.drawDragUI(cnt);
+      }
+      else this.drawService.removeDragUI();
+    });
+  }
 
   /**
    * Select uniquie identifiably property of Item.  
@@ -31,7 +44,7 @@ export class KndDndService<Item extends object> {
         Please override 'selectId' to select a different unique object property.
       `)
     }
-    return (item as any).id as string
+    return (item as any).id as Identifier
   }
 
   /**
@@ -40,7 +53,7 @@ export class KndDndService<Item extends object> {
   */
   public selectItem(item: Item) {
     if (this.selectedItems.value.has(this.selectUniqueIdentifier(item))) {
-      console.error(`Item ${item} is already selected`)
+      console.info(`Item ${item} is already selected`)
       return
     }
     this.selectedItems.next(

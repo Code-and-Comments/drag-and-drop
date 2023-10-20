@@ -22,7 +22,8 @@ export class DropableDirective<Item extends object> {
 
   @HostListener('dragover', ['$event']) onDragOver(evt: any) {
     evt.preventDefault();
-    evt.stopPropagation();
+     // dont stop propagation knd-dnd-service needs to read drag-mouse-move
+    // evt.stopPropagation();
     this.isHovering = true;
   }
 
