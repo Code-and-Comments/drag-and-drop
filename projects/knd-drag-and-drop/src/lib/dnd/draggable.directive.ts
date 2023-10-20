@@ -10,42 +10,45 @@ import { combineLatest } from 'rxjs';
 export class DraggableDirective<Item extends object> implements OnInit {
 
   @Input({ required: true }) kndItem: Item;
-  // enables html dragging
-  @HostBinding('draggable') draggable = true;
+  @HostBinding('draggable') draggable = true; // enables html dragging
   @HostBinding(`class.${defaultKndDndConfig.dragIsDragging}`) private isDragging = false;
 
   private dndService = inject(KndDndService<Item>);
   
-  @HostListener('dragstart', ['$event']) onDragStart(evt: DragEvent) {
+  @HostListener('dragstart', ['$event']) private onDragStart(evt: DragEvent) {
     this.dndService.selectItem(this.kndItem);
-    
-    const dragUI = this.createDragUI();
-    const dragUIRoot = document.documentElement;
-    dragUIRoot.appendChild(dragUI);
-    // HTML UI, x and y offset for cursor holding the UI
-    evt.dataTransfer?.setDragImage(dragUI, 0, 0);
-    // remove dragUI from DOM after it got picked up by setDragImage magic
-    setTimeout((_: any) => dragUIRoot.removeChild(dragUI), 5);
+    this.overrideBrowserDefaultDragUI(evt)
     this.dndService.isDragging.next(true);
-
   }
 
-  @HostListener('dragend', ['$event']) ondrop(_evt: DragEvent) {
-    console.log('d-end')
+  @HostListener('dragend', ['$event']) private ondrop(_evt: DragEvent) {
     this.dndService.isDragging.next(false);
   }
 
-  // has to be 1px 1px to have some UI
-  createDragUI(): HTMLElement {
+  /**
+   * Overrides default browser dragUI. 
+   * 
+   * If not overriden the draggable element is displayed, if set to 0x0 div, drag does not works
+  */
+  private overrideBrowserDefaultDragUI(event: DragEvent) {
+    const dragUI = this.createEmptyDragUI();
+    const dragUIRoot = document.documentElement;
+    dragUIRoot.appendChild(dragUI);
+    event.dataTransfer?.setDragImage(dragUI, 0, 0);
+    // remove dragUI from DOM after it got picked up by setDragImage magic
+    setTimeout((_: any) => dragUIRoot.removeChild(dragUI));
+  }
+
+  /**
+   * Creates 1x1 transparent div
+  */
+  private createEmptyDragUI(): HTMLElement {
     const dragUI = document.createElement('div');
-    // spawn drag UI outside of view -> otherwise it will pop up shortly on the UI
-    // can we improve this now? retry since refactord to dnd V2
     dragUI.style.position = 'absolute';
     dragUI.style.zIndex = '-9999';
-
-    dragUI.style.height = '10px';
-    dragUI.style.width = '10px';
-    dragUI.style.backgroundColor = 'green'; // 'transparent';
+    dragUI.style.height = '1px';
+    dragUI.style.width = '1px';
+    dragUI.style.backgroundColor = 'transparent';
     return dragUI;
   }
 

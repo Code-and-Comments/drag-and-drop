@@ -20,23 +20,24 @@ export class DropableDirective<Item extends object> {
   @Output() gotDropped = new EventEmitter<DropInfo<Item>>();
   private dndService = inject(KndDndService<Item>);
 
-  @HostListener('dragover', ['$event']) onDragOver(evt: any) {
+  @HostListener('dragover', ['$event']) private onDragOver(evt: any) {
     evt.preventDefault();
-     // dont stop propagation knd-dnd-service needs to read drag-mouse-move
+    // dont stop propagation knd-dnd-service needs to read drag-mouse-move
     // evt.stopPropagation();
     this.isHovering = true;
   }
 
-  @HostListener('dragleave', ['$event']) public onDragLeave(evt: any) {
+  @HostListener('dragleave', ['$event']) private onDragLeave(evt: any) {
     evt.preventDefault();
     evt.stopPropagation();
     this.isHovering = false;
   }
 
-  @HostListener('drop', ['$event']) public ondrop(evt: any) {
+  @HostListener('drop', ['$event']) private ondrop(evt: any) {
     evt.preventDefault();
     evt.stopPropagation();
     this.isHovering = false;
+    
     // clear dnd events -> maybe manually because we need to wait for success?
     this.dndService.selectedItems$.pipe(take(1)).subscribe(items => {
       this.gotDropped.emit({ dropId: this.kndDropId, dragItems: [...items.values()] });

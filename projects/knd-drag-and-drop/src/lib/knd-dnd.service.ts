@@ -20,14 +20,10 @@ export class KndDndService<Item extends object> {
    * `true` if is dragging, `false` if not
   */
   public isDragging = new BehaviorSubject(false);
-  private isDraggingSub: Subscription;
 
   constructor() {
-    this.isDraggingSub = this.isDragging.subscribe(isDragging => {
-      if (isDragging) {
-        const cnt = [...this.selectedItems.value.keys()].length;
-        this.drawService.drawDragUI(cnt);
-      }
+    this.isDragging.subscribe(isDragging => {
+      if (isDragging) this.drawService.drawDragUI([...this.selectedItems.value.values()]);
       else this.drawService.removeDragUI();
     });
   }
