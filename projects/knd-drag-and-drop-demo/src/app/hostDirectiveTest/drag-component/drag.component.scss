@@ -9,4 +9,7 @@
     &.knd-drag-isDragging {
         opacity: 0.5;
     }
+    &.knd-select-isSelected .wrapper {
+        background-color: green;
+    }
 }

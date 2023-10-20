@@ -1,5 +1,5 @@
-import { BehaviorSubject, skip, timeout } from 'rxjs';
-import { EnvironmentInjector, Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { Coordinates } from './dnd/dnd.models';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class KndDrawService<Item extends object> {
     this.renderer.appendChild(document.documentElement, this.dragUI);
 
     this.cursorPosition.subscribe(pos => console.log(pos));
-    this.cursorPosition.pipe(skip(1)).subscribe(pos => this.moveDragUI(pos));
+    this.cursorPosition.subscribe(pos => this.moveDragUI(pos));
   }
 
   private trackDragginCursor() {
@@ -27,7 +27,9 @@ export class KndDrawService<Item extends object> {
       this.cursorPosition.next({ x: evt.clientX, y: evt.clientY })
     });
   }
-
+  /**
+   * Create DragUI which will be shown/hidden on drag events
+  */
   private createDragUI(): HTMLElement {
     const dragUI = document.createElement('div');
     dragUI.style.position = 'absolute';
@@ -44,18 +46,16 @@ export class KndDrawService<Item extends object> {
   private moveDragUI(coords: Coordinates) {
     this.dragUI.style.top = `${coords.y}px`;
     this.dragUI.style.left = `${coords.x}px`;
-    // other
+  }
+
+  public showDragUI(items?: Item[]) {
+    if (items) this.dragUI.innerHTML = `${items.length}`;
+    else this.dragUI.innerHTML = '';
+    // timeout to move delay the actual call slightly to run after the cursor tracking
     setTimeout((_: any) => this.dragUI.style.opacity = '100%');
   }
-
-  public drawDragUI(items: Item[]) {
-    this.moveDragUI(this.cursorPosition.value);
-    this.dragUI.innerHTML = `${items.length}`;
-    this.renderer.appendChild(document.documentElement, this.dragUI);
-  }
-
-  public removeDragUI() {
+  
+  public hideDragUI() {
     this.dragUI.style.opacity = '0';
-    // this.renderer.removeChild(document.documentElement, this.dragUI);
   }
 }

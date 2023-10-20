@@ -23,8 +23,8 @@ export class KndDndService<Item extends object> {
 
   constructor() {
     this.isDragging.subscribe(isDragging => {
-      if (isDragging) this.drawService.drawDragUI([...this.selectedItems.value.values()]);
-      else this.drawService.removeDragUI();
+      if (isDragging) this.drawService.showDragUI([...this.selectedItems.value.values()]);
+      else this.drawService.hideDragUI();
     });
   }
 
