@@ -7,16 +7,14 @@ export class KndDrawService<Item extends object> {
 
   private rendererFactory =  inject(RendererFactory2);
   private renderer: Renderer2;
-  public cursorPosition = new BehaviorSubject<Coordinates>({ x: 0, y: 0});
   private dragUI: HTMLElement;
+  private cursorPosition = new BehaviorSubject<Coordinates>({ x: 0, y: 0});
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
     this.trackDragginCursor()
     this.dragUI = this.createDragUI();
     this.renderer.appendChild(document.documentElement, this.dragUI);
-
-    this.cursorPosition.subscribe(pos => console.log(pos));
     this.cursorPosition.subscribe(pos => this.moveDragUI(pos));
   }
 
