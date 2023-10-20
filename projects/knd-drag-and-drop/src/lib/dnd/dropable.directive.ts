@@ -1,21 +1,14 @@
 import { Directive, Output, EventEmitter, HostBinding, HostListener, Input, inject } from '@angular/core';
-import { defaultKndDndConfig } from './dnd.provider';
+import { DropInfo, KndIdentifier, defaultKndDndConfig } from './dnd.models';
 import { KndDndService } from '../knd-dnd.service';
 import { take } from 'rxjs';
-
-type Identifier = String
-
-export interface DropInfo<Item> {
-  dropId: Identifier;
-  dragItems: Item[];
-}
 
 @Directive({
   selector: '[kndDropable]',
   standalone: true
 })
 export class DropableDirective<Item extends object> {
-  @Input({ required: true }) kndDropId: Identifier;
+  @Input({ required: true }) kndDropId: KndIdentifier;
   @HostBinding(`class.${defaultKndDndConfig.dropIsHovering}`) private isHovering = false;
   @Output() gotDropped = new EventEmitter<DropInfo<Item>>();
   private dndService = inject(KndDndService<Item>);

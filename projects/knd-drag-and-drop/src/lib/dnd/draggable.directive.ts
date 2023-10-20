@@ -1,5 +1,5 @@
 import { Directive, ElementRef, HostBinding, HostListener, Inject, Input, OnInit, inject } from '@angular/core';
-import { defaultKndDndConfig } from './dnd.provider';
+import { defaultKndDndConfig } from './dnd.models';
 import { KndDndService } from '../knd-dnd.service';
 import { combineLatest } from 'rxjs';
 

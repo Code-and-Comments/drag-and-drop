@@ -1,6 +1,6 @@
 import { BehaviorSubject, skip, timeout } from 'rxjs';
 import { EnvironmentInjector, Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
-
+import { Coordinates } from './dnd/dnd.models';
 
 @Injectable()
 export class KndDrawService<Item extends object> {
@@ -58,9 +58,4 @@ export class KndDrawService<Item extends object> {
     this.dragUI.style.opacity = '0';
     // this.renderer.removeChild(document.documentElement, this.dragUI);
   }
-}
-
-interface Coordinates {
-  x: number;
-  y: number;
 }

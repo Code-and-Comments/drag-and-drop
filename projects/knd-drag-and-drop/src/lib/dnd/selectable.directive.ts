@@ -1,6 +1,6 @@
 import { Directive, Input, HostListener, inject, HostBinding, OnInit } from '@angular/core';
 import { KndDndService } from '../knd-dnd.service';
-import { defaultKndDndConfig } from './dnd.provider';
+import { defaultKndDndConfig } from './dnd.models';
 
 @Directive({
   selector: '[kndSelectable]',
