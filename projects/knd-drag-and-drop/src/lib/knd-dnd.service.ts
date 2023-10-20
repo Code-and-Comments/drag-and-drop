@@ -1,10 +1,8 @@
-import { BehaviorSubject, Observable, Subscription, map } from 'rxjs';
+import { BehaviorSubject, Observable, map } from 'rxjs';
 import { Injectable, inject } from '@angular/core';
 import { KndDrawService } from './knd-draw.service';
+import { KndIdentifier } from './dnd/dnd.models';
 
-type Identifier = String
-
-// to override css classes set or selectUniqueIdentifier override this class
 @Injectable()
 export class KndDndService<Item extends object> {
   private drawService =  inject(KndDrawService);
@@ -32,7 +30,7 @@ export class KndDndService<Item extends object> {
    * Select uniquie identifiably property of Item.  
    * By default the property `id` is used
   */
-  protected selectUniqueIdentifier: ((item: Item) => Identifier) = (item: Item) => {
+  protected selectUniqueIdentifier: ((item: Item) => KndIdentifier) = (item: Item) => {
     if (!Object.hasOwn(item, 'id')) {
       console.error(`
         KndDndService needs a unique identifier to work. 
@@ -40,7 +38,7 @@ export class KndDndService<Item extends object> {
         Please override 'selectId' to select a different unique object property.
       `)
     }
-    return (item as any).id as Identifier
+    return (item as any).id as KndIdentifier
   }
 
   /**
@@ -79,8 +77,8 @@ export class KndDndService<Item extends object> {
     console.log('All items have been deselected');
   }
 
-  private createEmptyMap(): Map<Identifier, Item> {
-    return new Map<Identifier, Item>()
+  private createEmptyMap(): Map<KndIdentifier, Item> {
+    return new Map<KndIdentifier, Item>()
   }
   /**
    * Creates an obserable that tracks if the given item is currently part of the dnd context.  

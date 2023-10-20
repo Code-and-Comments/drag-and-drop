@@ -31,13 +31,17 @@ export class KndDrawService<Item extends object> {
   private createDragUI(): HTMLElement {
     const dragUI = document.createElement('div');
     dragUI.style.position = 'absolute';
-    dragUI.style.height = '100px';
-    dragUI.style.width = '100px';
-    dragUI.style.backgroundColor = 'blue';
+    dragUI.style.height = '40px';
+    dragUI.style.width = '200px';
+    dragUI.style.backgroundColor = 'white';
+    dragUI.style.borderRadius = '8px';
+    dragUI.style.boxShadow = '10px 10px 29px -2px rgba(0,0,0,0.75)';
+    dragUI.style.border = '1px solid gray';
     dragUI.style.pointerEvents = 'none'; // otherwise the div breaks drag over
     dragUI.style.transition = 'opacity .25s linear';
     dragUI.style.fontSize = '30px';
     dragUI.style.opacity = '0';
+    dragUI.style.textAlign = 'center';
     return dragUI;
   }
 
