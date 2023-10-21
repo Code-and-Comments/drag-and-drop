@@ -2,6 +2,7 @@ import { Directive, ElementRef, HostBinding, HostListener, Inject, Input, OnInit
 import { defaultKndDndConfig } from './dnd.models';
 import { KndDndService } from '../knd-dnd.service';
 import { combineLatest } from 'rxjs';
+import { KndDrawService } from '../knd-draw.service';
 
 @Directive({
   selector: '[kndDraggable]',
@@ -11,9 +12,11 @@ export class DraggableDirective<Item extends object> implements OnInit {
 
   @Input({ required: true }) kndItem: Item;
   @HostBinding('draggable') draggable = true; // enables html dragging
-  @HostBinding(`class.${defaultKndDndConfig.dragIsDragging}`) private isDragging = false;
+  @HostBinding(`class.${defaultKndDndConfig.dragIsDragging}`) private currentElementIsDragging = false;
 
   private dndService = inject(KndDndService<Item>);
+  private drawService = inject(KndDrawService<Item>);
+  private elRef = inject(ElementRef);
   
   @HostListener('dragstart', ['$event']) private onDragStart(evt: DragEvent) {
     this.dndService.selectItem(this.kndItem);
@@ -23,6 +26,7 @@ export class DraggableDirective<Item extends object> implements OnInit {
 
   @HostListener('dragend', ['$event']) private ondrop(_evt: DragEvent) {
     this.dndService.isDragging.next(false);
+    this.drawService.dropAllDragElements();
   }
 
   /**
@@ -56,6 +60,28 @@ export class DraggableDirective<Item extends object> implements OnInit {
     combineLatest([
       this.dndService.createHasItemObservable(this.kndItem),
       this.dndService.isDragging
-    ]).subscribe(([isSelected, isDragging]) => this.isDragging = isSelected && isDragging)
+    ]).subscribe(([isSelected, isDragging]) => {
+      this.currentElementIsDragging = isSelected && isDragging;
+      if (this.currentElementIsDragging) this.drawService.animateElementForDrag(this.createAbsoluteClone());
+    });
+  }
+
+  /**
+   * Creates a clone absolut position at root exactly on top of the current item
+   * 
+   * This item will be used for the move to cusor animation
+  */
+  private createAbsoluteClone(): HTMLElement {
+    const currentElement = this.elRef.nativeElement as HTMLElement;
+    const currentElementPosition = currentElement.getBoundingClientRect();
+    const clone = currentElement.cloneNode(true) as HTMLElement;
+    clone.style.position = 'absolute';
+    clone.style.zIndex = '9999';
+    clone.style.pointerEvents = 'none'; // otherwise the div breaks drag over
+    console.log(currentElementPosition.top, currentElementPosition.left);
+    clone.style.top = `${currentElementPosition.top}px`;
+    clone.style.left = `${currentElementPosition.left}px`;
+    document.documentElement.prepend(clone)
+    return clone
   }
 }

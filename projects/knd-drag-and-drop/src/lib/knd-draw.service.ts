@@ -1,14 +1,16 @@
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { Coordinates } from './dnd/dnd.models';
 
 @Injectable()
 export class KndDrawService<Item extends object> {
 
-  private rendererFactory =  inject(RendererFactory2);
+  private rendererFactory = inject(RendererFactory2);
   private renderer: Renderer2;
   private dragUI: HTMLElement;
   private cursorPosition = new BehaviorSubject<Coordinates>({ x: 0, y: 0});
+  private dragElements: HTMLElement[] = [];
+  private dragElementsMoveSub: Subscription;
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
@@ -25,6 +27,7 @@ export class KndDrawService<Item extends object> {
       this.cursorPosition.next({ x: evt.clientX, y: evt.clientY })
     });
   }
+
   /**
    * Create DragUI which will be shown/hidden on drag events
   */
@@ -59,5 +62,27 @@ export class KndDrawService<Item extends object> {
   
   public hideDragUI() {
     this.dragUI.style.opacity = '0';
+  }
+
+  public dropAllDragElements() {
+    this.dragElements.forEach(el => document.documentElement.removeChild(el));
+    this.dragElements = [];
+    this.dragElementsMoveSub.unsubscribe();
+  }
+
+  public animateElementForDrag(element: HTMLElement) {
+    this.dragElements.push(element);
+    element.style.transition = 'all 2s linear';
+    // slightly to not override the inital position, but just right after
+    setTimeout((_: any) => {
+      this.dragElements.forEach(de => de.style.transform = 'scale(0.3)');
+      this.dragElementsMoveSub = this.cursorPosition.subscribe(cord => {
+        // console.log(cord);
+        this.dragElements.forEach(de => {
+          de.style.top = `${cord.y}px`;
+          de.style.left = `${cord.x}px`;
+        });
+      });
+    });
   }
 }
