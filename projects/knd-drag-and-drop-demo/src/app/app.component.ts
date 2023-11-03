@@ -21,6 +21,11 @@ export class AppComponent implements OnInit {
   createItems() {
     const arr = Array.from(Array(10)).map((_, i) => i);
     arr.forEach(index => this.items.push({ id: `${index}`, name: `Item ${index}`}));
+
+    // setTimeout(() => {
+    //   const arr2 = Array.from(Array(10)).map((_, i) => i+10);
+    //   arr2.forEach(index => this.items.push({ id: `${index}`, name: `Item ${index}`}));
+    // }, 2000);
   }
 
   gotDropped(drop: DropInfo<DemoType>)  {

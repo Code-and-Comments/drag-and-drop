@@ -4,6 +4,6 @@
   <cp-drop [kndDropId]="'3'" (gotDropped)="gotDropped($event)"></cp-drop>
 </div>
 <br><br><br><br><br><br>
-<div class="cp-drag-wrapper">
+<knd-drag-wrapper class="cp-drag-wrapper">
   <cp-drag *ngFor="let item of items" [item]="item" [kndItem]="item"></cp-drag>
-</div>
+</knd-drag-wrapper>

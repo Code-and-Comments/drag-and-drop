@@ -7,6 +7,7 @@ import { DropComponent } from './hostDirectiveTest/drop-component/drop.component
 import { DragComponent } from './hostDirectiveTest/drag-component/drag.component';
 import { CommonModule } from '@angular/common';
 import { KndDrawService } from 'projects/knd-drag-and-drop/src/lib/knd-draw.service';
+import { DragWrapperComponent } from 'projects/knd-drag-and-drop/src/lib/drag-wrapper/drag-wrapper.component';
 
 @NgModule({
   declarations: [
@@ -17,10 +18,11 @@ import { KndDrawService } from 'projects/knd-drag-and-drop/src/lib/knd-draw.serv
     DragComponent,
     DropComponent,
     CommonModule,
+    DragWrapperComponent,
   ],
   providers: [
     KndDndService<DemoType>,
-    KndDrawService,
+    KndDrawService<DemoType>,
   ],
   bootstrap: [AppComponent]
 })

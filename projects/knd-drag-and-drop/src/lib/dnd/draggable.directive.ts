@@ -18,6 +18,7 @@ export class DraggableDirective<Item extends object> implements OnInit {
   private drawService = inject(KndDrawService<Item>);
   private elRef = inject(ElementRef);
   
+  // TODO: move isDragging logic to dndService
   @HostListener('dragstart', ['$event']) private onDragStart(evt: DragEvent) {
     this.dndService.selectItem(this.kndItem);
     this.overrideBrowserDefaultDragUI(evt)

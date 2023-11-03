@@ -1,4 +1,4 @@
-export type KndIdentifier = String
+export type KndIdentifier = string
 
 export interface KndDndConfig {
     selectIsSelected: string;

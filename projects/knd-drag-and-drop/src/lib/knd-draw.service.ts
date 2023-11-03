@@ -14,8 +14,8 @@ export class KndDrawService<Item extends object> {
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
-    this.trackCursor()
     this.dragUI = this.createDragUI();
+    this.trackCursor()
     this.renderer.appendChild(document.documentElement, this.dragUI);
   }
 
@@ -57,7 +57,7 @@ export class KndDrawService<Item extends object> {
   public showDragUI(items?: Item[]) {
     this.dragUI.innerHTML = (items) ? `${items.length}` : '';
     // timeout to move delay the actual call slightly to run after the cursor tracking
-    setTimeout((_: any) => this.dragUI.style.opacity = '100%');
+    setTimeout(() => this.dragUI.style.opacity = '100%');
   }
   
   public hideDragUI() {
@@ -74,7 +74,7 @@ export class KndDrawService<Item extends object> {
     this.dragElements.push(element);
     element.style.transition = 'all .1s linear';
     // slightly to not override the inital position, but just right after
-    setTimeout((_: any) => {
+    setTimeout(() => {
       this.dragElements.forEach(de => de.style.transform = 'scale(0.5)');
       this.dragElementsMoveSub = this.cursorPosition.subscribe(cord => {
         this.dragElements.forEach(de => {
