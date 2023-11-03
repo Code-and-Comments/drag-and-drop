@@ -34,7 +34,7 @@ export class KndDndService<Item extends object> {
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
-    this.trackShiftKey();
+    this.trackKeys();
 
     // control dragUI
     this.isDragging.subscribe(isDragging => {
@@ -43,17 +43,16 @@ export class KndDndService<Item extends object> {
     });
   }
 
-  private trackShiftKey() {
+  private trackKeys() {
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
-      if (evt.shiftKey) {
-        this.shiftIsActive.next(true);
-      }
+      if (evt.shiftKey) this.shiftIsActive.next(true);
+      if ((evt.key === 'Escape' || evt.key === 'Esc')) this.deSelectAll();
     });
+
     this.renderer.listen(window, 'keyup', (evt: KeyboardEvent) => {
-      if (!evt.shiftKey) {
-        this.shiftIsActive.next(false);
-      }
+      if (!evt.shiftKey) this.shiftIsActive.next(false);
     });
+    
     this.shiftSelectActive = combineLatest([this.shiftIsActive, this.selectedItems]).pipe(
       map(([shiftIsActive, items]) => items.values.length > 0 && shiftIsActive)
     );
