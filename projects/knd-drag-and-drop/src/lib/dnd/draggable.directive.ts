@@ -76,12 +76,11 @@ export class DraggableDirective<Item extends object> implements OnInit {
     const currentElementPosition = currentElement.getBoundingClientRect();
     const clone = currentElement.cloneNode(true) as HTMLElement;
     clone.style.position = 'absolute';
-    clone.style.zIndex = `${dragabbleZ}`;
     clone.style.pointerEvents = 'none'; // otherwise the div breaks drag over
-    console.log(currentElementPosition.top, currentElementPosition.left);
+    clone.style.zIndex = `${dragabbleZ}`;
     clone.style.top = `${currentElementPosition.top}px`;
     clone.style.left = `${currentElementPosition.left}px`;
-    document.documentElement.prepend(clone)
+    document.documentElement.prepend(clone);
     return clone
   }
 }

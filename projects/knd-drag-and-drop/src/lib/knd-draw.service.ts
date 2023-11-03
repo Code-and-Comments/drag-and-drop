@@ -1,6 +1,6 @@
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
-import { Coordinates, dragUIZ } from './dnd/dnd.models';
+import { Coordinates, defaultKndDndConfig, dragUIZ } from './dnd/dnd.models';
 
 @Injectable()
 export class KndDrawService<Item extends object> {
@@ -14,13 +14,12 @@ export class KndDrawService<Item extends object> {
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
-    this.trackDragginCursor()
+    this.trackCursor()
     this.dragUI = this.createDragUI();
     this.renderer.appendChild(document.documentElement, this.dragUI);
-    this.cursorPosition.subscribe(pos => this.moveDragUI(pos));
   }
 
-  private trackDragginCursor() {
+  private trackCursor() {
     this.renderer.listen(window, 'mousemove', (evt: MouseEvent) => {
       this.updateCursorPosition(evt);
     });
@@ -28,6 +27,7 @@ export class KndDrawService<Item extends object> {
       evt.preventDefault(); // cancels dragend animation
       this.updateCursorPosition(evt);
     });
+    this.cursorPosition.subscribe(pos => this.moveDragUI(pos));
   }
 
   private updateCursorPosition(evt: MouseEvent | DragEvent) {
@@ -41,18 +41,11 @@ export class KndDrawService<Item extends object> {
   private createDragUI(): HTMLElement {
     const dragUI = document.createElement('div');
     dragUI.style.position = 'absolute';
-    dragUI.style.height = '40px';
-    dragUI.style.width = '200px';
-    dragUI.style.backgroundColor = 'white';
-    dragUI.style.borderRadius = '8px';
-    dragUI.style.boxShadow = '10px 10px 29px -2px rgba(0,0,0,0.75)';
-    dragUI.style.border = '1px solid gray';
     dragUI.style.pointerEvents = 'none'; // otherwise the div breaks drag over
     dragUI.style.transition = 'opacity .25s linear';
-    dragUI.style.fontSize = '30px';
     dragUI.style.opacity = '0';
-    dragUI.style.textAlign = 'center';
     dragUI.style.zIndex = `${dragUIZ}`;
+    dragUI.classList.add(defaultKndDndConfig.dragUI);
     return dragUI;
   }
 
@@ -62,8 +55,7 @@ export class KndDrawService<Item extends object> {
   }
 
   public showDragUI(items?: Item[]) {
-    if (items) this.dragUI.innerHTML = `${items.length}`;
-    else this.dragUI.innerHTML = '';
+    this.dragUI.innerHTML = (items) ? `${items.length}` : '';
     // timeout to move delay the actual call slightly to run after the cursor tracking
     setTimeout((_: any) => this.dragUI.style.opacity = '100%');
   }
