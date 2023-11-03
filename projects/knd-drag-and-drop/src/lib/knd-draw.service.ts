@@ -1,6 +1,6 @@
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
-import { Coordinates } from './dnd/dnd.models';
+import { Coordinates, dragUIZ } from './dnd/dnd.models';
 
 @Injectable()
 export class KndDrawService<Item extends object> {
@@ -21,11 +21,18 @@ export class KndDrawService<Item extends object> {
   }
 
   private trackDragginCursor() {
+    this.renderer.listen(window, 'mousemove', (evt: MouseEvent) => {
+      this.updateCursorPosition(evt);
+    });
     this.renderer.listen(window, 'dragover', (evt: DragEvent) => {
       evt.preventDefault(); // cancels dragend animation
-      if (this.cursorPosition.value.x == evt.clientX && this.cursorPosition.value.y == evt.clientY) return
-      this.cursorPosition.next({ x: evt.clientX, y: evt.clientY })
+      this.updateCursorPosition(evt);
     });
+  }
+
+  private updateCursorPosition(evt: MouseEvent | DragEvent) {
+    if (this.cursorPosition.value.x == evt.clientX && this.cursorPosition.value.y == evt.clientY) return
+    this.cursorPosition.next({ x: evt.clientX, y: evt.clientY })
   }
 
   /**
@@ -45,6 +52,7 @@ export class KndDrawService<Item extends object> {
     dragUI.style.fontSize = '30px';
     dragUI.style.opacity = '0';
     dragUI.style.textAlign = 'center';
+    dragUI.style.zIndex = `${dragUIZ}`;
     return dragUI;
   }
 
@@ -72,17 +80,20 @@ export class KndDrawService<Item extends object> {
 
   public animateElementForDrag(element: HTMLElement) {
     this.dragElements.push(element);
-    element.style.transition = 'all 2s linear';
+    element.style.transition = 'all .1s linear';
     // slightly to not override the inital position, but just right after
     setTimeout((_: any) => {
-      this.dragElements.forEach(de => de.style.transform = 'scale(0.3)');
+      this.dragElements.forEach(de => de.style.transform = 'scale(0.5)');
       this.dragElementsMoveSub = this.cursorPosition.subscribe(cord => {
-        // console.log(cord);
         this.dragElements.forEach(de => {
           de.style.top = `${cord.y}px`;
           de.style.left = `${cord.x}px`;
         });
       });
     });
+    // The time below fits well with a .1s transition
+    setTimeout(() => {
+      this.dragElements.forEach(de => de.style.display = 'none');
+    }, 300);
   }
 }

@@ -1,5 +1,5 @@
 import { Directive, ElementRef, HostBinding, HostListener, Inject, Input, OnInit, inject } from '@angular/core';
-import { defaultKndDndConfig } from './dnd.models';
+import { defaultKndDndConfig, dragabbleZ } from './dnd.models';
 import { KndDndService } from '../knd-dnd.service';
 import { combineLatest } from 'rxjs';
 import { KndDrawService } from '../knd-draw.service';
@@ -76,7 +76,7 @@ export class DraggableDirective<Item extends object> implements OnInit {
     const currentElementPosition = currentElement.getBoundingClientRect();
     const clone = currentElement.cloneNode(true) as HTMLElement;
     clone.style.position = 'absolute';
-    clone.style.zIndex = '9999';
+    clone.style.zIndex = `${dragabbleZ}`;
     clone.style.pointerEvents = 'none'; // otherwise the div breaks drag over
     console.log(currentElementPosition.top, currentElementPosition.left);
     clone.style.top = `${currentElementPosition.top}px`;

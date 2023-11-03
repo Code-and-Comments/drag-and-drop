@@ -22,3 +22,6 @@ export interface Coordinates {
   x: number;
   y: number;
 }
+
+export const dragabbleZ = 9999;
+export const dragUIZ = dragabbleZ + 1;
