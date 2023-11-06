@@ -1,7 +1,7 @@
-import { BehaviorSubject, Observable, ReplaySubject, Subject, combineLatest, map, take } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, Subject, combineLatest, filter, map, take } from 'rxjs';
 import { Injectable, QueryList, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { KndDrawService } from './knd-draw.service';
-import { KndIdentifier } from './dnd/dnd.models';
+import { KndIdentifier, createEmptyMap, itemsInBetween } from './dnd/dnd.models';
 import { SelectableDirective } from './dnd/selectable.directive';
 
 @Injectable()
@@ -9,21 +9,19 @@ export class KndDndService<Item extends object> {
   private rendererFactory = inject(RendererFactory2);
   private renderer: Renderer2;
   private drawService =  inject(KndDrawService);
-  private selectedItems = new BehaviorSubject(this.createEmptyMap());
+  private selectedItems = new BehaviorSubject(createEmptyMap<Item>());
   private shiftIsActive = new BehaviorSubject(false);
-  private latestSelectedItem: Item | null;
+  private latestSelectedItem = new BehaviorSubject<Item | null>(null);
+  private latestHoveredItem = new BehaviorSubject<Item | null>(null);
+  private hoveredItems = new BehaviorSubject(createEmptyMap<Item>());
 
-  public selectables = new ReplaySubject<QueryList<SelectableDirective<Item>>>(1);
+  public allAvailableSelectables = new ReplaySubject<QueryList<SelectableDirective<Item>>>(1);
 
   /**
    * Full map of items in dnd context. The key of the map is defined via function `selectUniqueIdentifier`.  
    * By default the property `id` is used as key
   */
   public selectedItems$ = this.selectedItems.asObservable();
-  /**
-   * Tracks if shiftSelect should be active currently
-  */
-  public shiftSelectActive: Observable<boolean>;
   /**
    * Tracks if a dragging process is currently ongoing  
    * `true` if is dragging, `false` if not
@@ -52,17 +50,28 @@ export class KndDndService<Item extends object> {
     this.renderer.listen(window, 'keyup', (evt: KeyboardEvent) => {
       if (!evt.shiftKey) this.shiftIsActive.next(false);
     });
-    
-    this.shiftSelectActive = combineLatest([this.shiftIsActive, this.selectedItems]).pipe(
-      map(([shiftIsActive, items]) => items.values.length > 0 && shiftIsActive)
-    );
-  }
 
+    this.shiftIsActive.subscribe(s => console.log('shift', s));
+
+    combineLatest([this.shiftIsActive, this.latestHoveredItem, this.latestSelectedItem])
+    .subscribe(([shiftIsActive, latestHoveredItem, latestSelectedItem]) => {
+      
+      if (shiftIsActive && latestHoveredItem && latestSelectedItem) {
+        console.log('hover');
+        this.shiftHoverItems(latestHoveredItem, latestSelectedItem)
+      }
+      else {
+        console.log('reset hover');
+        this.hoveredItems.next(createEmptyMap<Item>());
+      }
+    });
+  }
+ 
   /**
    * Select uniquie identifiably property of Item.  
    * By default the property `id` is used
   */
-  public selectUniqueIdentifier: ((item: Item) => KndIdentifier) = (item: Item) => {
+  protected selectUniqueIdentifier: ((item: Item) => KndIdentifier) = (item: Item) => {
     if (!Object.hasOwn(item, 'id')) {
       console.error(`
         KndDndService needs a unique identifier to work. 
@@ -83,10 +92,11 @@ export class KndDndService<Item extends object> {
       return
     }
     
-    if (this.shiftIsActive.value && this.latestSelectedItem) this.selectItemShift(item, this.latestSelectedItem);
+    const latestSelectedItem = this.latestSelectedItem.value
+    if (this.shiftIsActive.value && latestSelectedItem) this.shiftSelectItems(item, latestSelectedItem);
     else this.selectItemSingle(item);
 
-    this.latestSelectedItem = item;
+    this.latestSelectedItem.next(item);
   }
 
   private selectItemSingle(item: Item) {
@@ -95,24 +105,29 @@ export class KndDndService<Item extends object> {
     );
   }
 
-  private selectItemShift(item: Item, latestSelectedItem: Item) {
-    this.selectables.pipe(take(1)).subscribe(selectables => {
-      const arr = selectables.toArray().map(s => s.kndItem);
-      const currentIndex = arr.indexOf(item);
-      const latestSelectedIndex = arr.indexOf(latestSelectedItem);
-      
-      const start = currentIndex > latestSelectedIndex ? latestSelectedIndex : currentIndex;
-      const end = currentIndex > latestSelectedIndex ?  currentIndex : latestSelectedIndex;
-      
-      for (let i = start; i <= end; i++) {
-        // latestSelectedIndex already selected -> skip
-        if (i == latestSelectedIndex) continue;
-        this.selectItemSingle(arr[i]);
-      }
+  private shiftHoverItems(latestSelectedItem: Item, hoveredItem: Item) {
+    this.allAvailableSelectables.pipe(
+      take(1),
+      map(selectables => selectables.toArray().map(s => s.kndItem)),
+      map(kndItemArray => itemsInBetween(kndItemArray, hoveredItem, latestSelectedItem))
+    ).subscribe(hovers => {
+      hovers.forEach(h => 
+        this.hoveredItems.next(
+          this.hoveredItems.value.set(this.selectUniqueIdentifier(h), h)
+        )
+      );
     });
   }
 
-  // private setClass
+  private shiftSelectItems(currentItem: Item, latestSelectedItem: Item) {
+    this.allAvailableSelectables.pipe(
+      take(1),
+      map(selectables => selectables.toArray().map(s => s.kndItem)),
+      map(kndItemArray => itemsInBetween(kndItemArray, latestSelectedItem, currentItem))
+    ).subscribe(selectables => {
+      selectables.forEach(s => this.selectItemSingle(s));
+    });
+  }
 
   /**
    * Deselect an item, removes it from the dnd context
@@ -122,31 +137,43 @@ export class KndDndService<Item extends object> {
     const didDelete = this.selectedItems.value.delete(this.selectUniqueIdentifier(item));
     if (didDelete) {
       this.selectedItems.next(this.selectedItems.value);
-      this.latestSelectedItem = null;
+      this.latestSelectedItem.next(null);
     }
     else {
       console.error(`Unable to deselect item as it was not selected ${item}.`)
     }
   }
 
+  public hoverItem(item: Item) {
+    if (this.latestHoveredItem.value != item) this.latestHoveredItem.next(item);
+  }
+
+  public resetHoverItem() {
+    if (this.latestHoveredItem.value != null) this.latestHoveredItem.next(null);
+  }
+
   /**
    * Deselect all item, Removes all items from the dnd context
   */
   public deSelectAll() {
-    this.selectedItems.next(this.createEmptyMap());
-    this.latestSelectedItem = null;
+    this.selectedItems.next(createEmptyMap<Item>());
+    this.latestSelectedItem.next(null);
     console.log('All items have been deselected');
   }
 
-  private createEmptyMap(): Map<KndIdentifier, Item> {
-    return new Map<KndIdentifier, Item>()
+  /**
+   * Creates an obserable that tracks if the given item is currently part of the dnd context.
+   * @return Observable that is `true` if item is dnd context, `false` if not
+  */
+  public createIsSelectedObservable(item: Item): Observable<boolean> {
+    return this.selectedItems$.pipe(map(items => items.has(this.selectUniqueIdentifier(item))));
   }
 
   /**
-   * Creates an obserable that tracks if the given item is currently part of the dnd context.  
-   * @returns Observable that is `true` if item is dnd context, `false` if not
+   * Creates an obserable that tracks if the given item is currently part of the dnd context.
+   * @return Observable that is `true` if item is dnd context, `false` if not
   */
-  public createHasItemObservable(item: Item): Observable<boolean> {
-    return this.selectedItems$.pipe(map(items => items.has(this.selectUniqueIdentifier(item))));
+  public createIsHoveringObservable(item: Item): Observable<boolean> {
+    return this.hoveredItems.pipe(map(items => items.has(this.selectUniqueIdentifier(item))));
   }
 }

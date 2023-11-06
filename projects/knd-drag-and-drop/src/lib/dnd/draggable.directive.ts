@@ -59,7 +59,7 @@ export class DraggableDirective<Item extends object> implements OnInit {
 
   ngOnInit() {
     combineLatest([
-      this.dndService.createHasItemObservable(this.kndItem),
+      this.dndService.createIsSelectedObservable(this.kndItem),
       this.dndService.isDragging
     ]).subscribe(([isSelected, isDragging]) => {
       this.currentElementIsDragging = isSelected && isDragging;
