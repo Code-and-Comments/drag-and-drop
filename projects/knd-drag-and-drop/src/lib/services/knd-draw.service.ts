@@ -1,6 +1,6 @@
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
-import { Coordinates, defaultKndDndConfig, dragUIZ } from './dnd/dnd.models';
+import { Coordinates, defaultKndDndConfig, dragUIZ } from '../dnd';
 import { KndCursorService } from './knd-cursor.service';
 
 @Injectable()

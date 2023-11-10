@@ -1,6 +1,6 @@
 import { BehaviorSubject } from 'rxjs';
 import { Renderer2, RendererFactory2, inject } from '@angular/core';
-import { Coordinates } from './dnd/dnd.models';
+import { Coordinates } from '../dnd';
 
 export class KndCursorService {
 

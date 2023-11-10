@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, inject } from '@angular/core';
 import { DemoType } from '../../models';
-import { SelectableDirective } from 'projects/knd-drag-and-drop/src/lib/dnd/selectable.directive';
-import { DraggableDirective } from 'projects/knd-drag-and-drop/src/lib/dnd/draggable.directive';
+import { SelectableDirective } from 'projects/knd-drag-and-drop/src/lib/dnd-directives/selectable.directive';
+import { DraggableDirective } from 'projects/knd-drag-and-drop/src/lib/dnd-directives/draggable.directive';
 
 @Component({
   selector: 'cp-drag',

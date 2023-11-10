@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ContentChildren, Input, OnChanges, OnDestroy, OnInit, QueryList, SimpleChanges, ViewChildren, inject } from '@angular/core';
-import { SelectableDirective } from '../dnd/selectable.directive';
-import { KndDndService } from '../knd-dnd.service';
+import { SelectableDirective } from '../dnd-directives/selectable.directive';
+import { KndDndService } from '../services/knd-dnd.service';
 import { Subscription } from 'rxjs';
 
 @Component({

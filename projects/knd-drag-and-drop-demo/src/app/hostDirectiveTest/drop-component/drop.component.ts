@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { DropableDirective } from 'projects/knd-drag-and-drop/src/lib/dnd/dropable.directive';
+import { DropableDirective } from 'projects/knd-drag-and-drop/src/lib/dnd-directives/dropable.directive';
 
 @Component({
   selector: 'cp-drop',

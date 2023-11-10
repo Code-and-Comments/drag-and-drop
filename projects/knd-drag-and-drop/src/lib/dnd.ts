@@ -32,10 +32,6 @@ export interface Coordinates {
 export const dragabbleZ = 9999;
 export const dragUIZ = dragabbleZ + 1;
 
-export function createEmptyMap<I, T>(): Map<I, T> {
-  return new Map<I, T>()
-}
-
 /**
 * Find all items between two items in the array, including first and second item
 * @param first
@@ -58,7 +54,6 @@ export interface KndItemState {
   isShiftHovered: boolean
   isSelected: boolean
 }
-
 
 export type KndMap<T> = Map<KndIdentifier, ({ item: T, state: KndItemState })>
 export function createEmptyKndMap<T>(): KndMap<T> {

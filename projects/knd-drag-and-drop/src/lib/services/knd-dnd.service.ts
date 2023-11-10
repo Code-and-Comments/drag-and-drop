@@ -1,8 +1,8 @@
-import { BehaviorSubject, Observable, ReplaySubject, Subject, combineLatest, filter, map, take } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, combineLatest, map, take } from 'rxjs';
 import { Injectable, QueryList, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { KndDrawService } from './knd-draw.service';
-import { KndIdentifier, KndItemState, KndMap, createEmptyKndMap, createEmptyMap, itemsInBetween } from './dnd/dnd.models';
-import { SelectableDirective } from './dnd/selectable.directive';
+import { KndIdentifier, KndItemState, KndMap, createEmptyKndMap, itemsInBetween } from '../dnd';
+import { SelectableDirective } from '../dnd-directives/selectable.directive';
 
 @Injectable()
 export class KndDndService<Item extends object> {
@@ -11,7 +11,7 @@ export class KndDndService<Item extends object> {
   private renderer: Renderer2;
   private drawService = new KndDrawService();
 
-  private selectedItems = new BehaviorSubject(createEmptyMap<KndIdentifier, Item>());
+  private selectedItems = new BehaviorSubject(new Map<KndIdentifier, Item>());
   private shiftIsActive = new BehaviorSubject(false);
   private latestSelectedItem = new BehaviorSubject<Item | null>(null);
   private latestHoveredItem = new BehaviorSubject<Item | null>(null);
@@ -196,7 +196,7 @@ export class KndDndService<Item extends object> {
    * Deselect all item, Removes all items from the dnd context
   */
   public deSelectAll() {
-    this.selectedItems.next(createEmptyMap<KndIdentifier, Item>());
+    this.selectedItems.next(new Map<KndIdentifier, Item>());
     this.latestSelectedItem.next(null);
     console.log('All items have been deselected');
   }

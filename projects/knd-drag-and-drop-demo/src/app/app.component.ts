@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { DemoType } from './models';
 import { KndDndService } from 'projects/knd-drag-and-drop/src/public-api';
-import { DropInfo } from 'projects/knd-drag-and-drop/src/lib/dnd/dnd.models';
+import { DropInfo } from 'projects/knd-drag-and-drop/src/lib/dnd';
 
 @Component({
   selector: 'app-root',
