@@ -1,6 +1,6 @@
 {
   "name": "knd-drag-and-drop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Simon Deutsch",
   "description": "A drag and drop library imitating folder like behaviour to select, drag and drop.",
   "license": "MIT",

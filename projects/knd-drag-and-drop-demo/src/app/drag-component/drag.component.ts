@@ -1,6 +1,6 @@
 import { Component, Input, inject } from '@angular/core';
-import { DemoType } from '../../models';
 import { DraggableDirective, SelectableDirective } from 'projects/knd-drag-and-drop/src/public-api';
+import { DemoType } from '../app.component';
 
 @Component({
   selector: 'cp-drag',

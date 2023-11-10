@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { DemoType } from './models';
 import { DropInfo } from 'projects/knd-drag-and-drop/src/lib/dnd';
 
 @Component({
@@ -28,4 +27,9 @@ export class AppComponent implements OnInit {
   gotDropped(drop: DropInfo<DemoType>)  {
     console.log('drop', drop);
   }
+}
+
+export interface DemoType {
+  id: string,
+  name: string
 }
