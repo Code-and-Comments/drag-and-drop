@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable, ReplaySubject, Subject, combineLatest, filter, map, take } from 'rxjs';
 import { Injectable, QueryList, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { KndDrawService } from './knd-draw.service';
-import { Coordinates, KndIdentifier, KndItemState, KndMap, createEmptyKndMap, createEmptyMap, itemsInBetween } from './dnd/dnd.models';
+import { KndIdentifier, KndItemState, KndMap, createEmptyKndMap, createEmptyMap, itemsInBetween } from './dnd/dnd.models';
 import { SelectableDirective } from './dnd/selectable.directive';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class KndDndService<Item extends object> {
 
   private rendererFactory = inject(RendererFactory2);
   private renderer: Renderer2;
-  private drawService =  inject(KndDrawService);
+  private drawService = new KndDrawService();
 
   private selectedItems = new BehaviorSubject(createEmptyMap<KndIdentifier, Item>());
   private shiftIsActive = new BehaviorSubject(false);
@@ -161,9 +161,20 @@ export class KndDndService<Item extends object> {
 
   /**
    * Inform dnd service that dragging has ended
-   */
+  */
   public stopDragging() {
-    if (this.isDragging.value != false) this.isDragging.next(false);
+    if (this.isDragging.value != false) {
+      this.isDragging.next(false);
+      this.drawService.dropAllDragElements();
+    } 
+  }
+
+  /**
+   * Start drag animation
+   * @param element HTMLElement that should be animated
+  */
+  public initDragAnimation(element: HTMLElement) {
+    this.drawService.animateElementForDrag(element);
   }
 
   /**

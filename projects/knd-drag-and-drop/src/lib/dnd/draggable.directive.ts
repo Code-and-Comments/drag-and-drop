@@ -1,7 +1,6 @@
 import { Directive, ElementRef, HostBinding, HostListener, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { KndItemState, defaultKndDndConfig, dragabbleZ } from './dnd.models';
 import { KndDndService } from '../knd-dnd.service';
-import { KndDrawService } from '../knd-draw.service';
 import { Observable, Subject, Subscription, map, pairwise, pipe, startWith, take, takeUntil } from 'rxjs';
 
 @Directive({
@@ -15,7 +14,6 @@ export class DraggableDirective<Item extends object> implements OnInit, OnDestro
   private destroy$ = new Subject<void>()
 
   private dndService = inject(KndDndService<Item>);
-  private drawService = inject(KndDrawService<Item>);
   private elRef = inject(ElementRef);
   private itemState: Observable<KndItemState>
   
@@ -27,7 +25,6 @@ export class DraggableDirective<Item extends object> implements OnInit, OnDestro
 
   @HostListener('dragend', ['$event']) private ondrop(_evt: DragEvent) {
     this.dndService.stopDragging();
-    this.drawService.dropAllDragElements();
   }
 
   /**
@@ -67,7 +64,7 @@ export class DraggableDirective<Item extends object> implements OnInit, OnDestro
       pairwise(),
     ).subscribe(([prev, curr]) => {
       if (prev == false && curr == true) {
-        this.drawService.animateElementForDrag(this.createAbsoluteClone());
+        this.dndService.initDragAnimation(this.createAbsoluteClone());
       }
     });
     this.itemState.pipe(
