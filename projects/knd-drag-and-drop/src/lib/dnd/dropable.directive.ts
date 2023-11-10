@@ -31,10 +31,10 @@ export class DropableDirective<Item extends object> {
     evt.stopPropagation();
     this.isHovering = false;
     
+    const items = this.dndService.getAllSelectedItems();
+    this.gotDropped.emit({ dropId: this.kndDropId, dragItems: items });
+
     // clear dnd events -> maybe manually because we need to wait for success?
-    this.dndService.selectedItems$.pipe(take(1)).subscribe(items => {
-      this.gotDropped.emit({ dropId: this.kndDropId, dragItems: [...items.values()] });
-      this.dndService.deSelectAll();
-    });
+    this.dndService.deSelectAll();
   }
 }

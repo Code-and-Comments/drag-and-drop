@@ -15,24 +15,14 @@ export class KndDndService<Item extends object> {
   private shiftIsActive = new BehaviorSubject(false);
   private latestSelectedItem = new BehaviorSubject<Item | null>(null);
   private latestHoveredItem = new BehaviorSubject<Item | null>(null);
+  private isDragging = new BehaviorSubject(false);
 
   private itemStates: Observable<KndMap<Item>>;
   public allAvailableSelectables = new ReplaySubject<QueryList<SelectableDirective<Item>>>(1);
-
-  /**
-   * Full map of items in dnd context. The key of the map is defined via function `selectUniqueIdentifier`.  
-   * By default the property `id` is used as key
-  */
-  public selectedItems$ = this.selectedItems.asObservable();
-  /**
-   * Tracks if a dragging process is currently ongoing  
-   * `true` if is dragging, `false` if not
-  */
-  public isDragging = new BehaviorSubject(false);
+  
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
-    this.initTrackKeys();
 
     // control dragUI
     this.isDragging.subscribe(isDragging => {
@@ -40,6 +30,7 @@ export class KndDndService<Item extends object> {
       else this.drawService.hideDragUI();
     });
 
+    this.initTrackKeys();
     this.initTrackItemStates();
   }
 
@@ -69,7 +60,7 @@ export class KndDndService<Item extends object> {
     return (item as any).id as KndIdentifier
   }
 
-  initTrackItemStates() {
+  private initTrackItemStates() {
     const allSelectables = this.allAvailableSelectables.pipe(
       map(selectables => selectables.toArray().map(s => s.kndItem)),
     )
@@ -119,6 +110,8 @@ export class KndDndService<Item extends object> {
   /**
    * Select an item, adds it to the dnd service context
    * @param item item to be added to the dnd conext
+   * 
+   * automatically detects and select shift select items
   */
   public selectItem(item: Item) {
     if (this.selectedItems.value.has(this.selectUniqueIdentifier(item))) {
@@ -149,7 +142,7 @@ export class KndDndService<Item extends object> {
 
   /**
    * Deselect an item, removes it from the dnd context
-   * @param item item to be removed from the dnd context
+   * @param item to be removed from the dnd context
   */
   public deSelectItem(item: Item) {
     const didDelete = this.selectedItems.value.delete(this.selectUniqueIdentifier(item));
@@ -162,10 +155,31 @@ export class KndDndService<Item extends object> {
     }
   }
 
+  /**
+   * Inform dnd service that dragging was started
+  */
+  public startDragging() {
+    if (this.isDragging.value != true) this.isDragging.next(true);
+  }
+
+  /**
+   * Inform dnd service that dragging has ended
+   */
+  public stopDragging() {
+    if (this.isDragging.value != false) this.isDragging.next(false);
+  }
+
+  /**
+   * Remember which items is currently hovered - for shift select logic
+   * @param item which is hovered
+  */
   public hoverItem(item: Item) {
     if (this.latestHoveredItem.value != item) this.latestHoveredItem.next(item);
   }
 
+  /**
+   * Reset hovering if item is not hovered anymore - for shift select logic
+  */
   public resetHoverItem() {
     if (this.latestHoveredItem.value != null) this.latestHoveredItem.next(null);
   }
@@ -180,11 +194,10 @@ export class KndDndService<Item extends object> {
   }
 
   /**
-   * Creates an obserable that tracks if the given item is currently part of the dnd context.
-   * @return Observable that is `true` if item is dnd context, `false` if not
+   * Deselect all item, Removes all items from the dnd context
   */
-  public createIsSelectedObservable(item: Item): Observable<boolean> {
-    return this.selectedItems$.pipe(map(items => items.has(this.selectUniqueIdentifier(item))));
+  public getAllSelectedItems(): Item[] {
+    return Array.from(this.selectedItems.value.values());
   }
 
   /**

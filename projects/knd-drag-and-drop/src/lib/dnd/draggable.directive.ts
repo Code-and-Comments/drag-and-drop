@@ -1,47 +1,48 @@
-import { Directive, ElementRef, HostBinding, HostListener, Inject, Input, OnInit, inject } from '@angular/core';
-import { defaultKndDndConfig, dragabbleZ } from './dnd.models';
+import { Directive, ElementRef, HostBinding, HostListener, Input, OnDestroy, OnInit, inject } from '@angular/core';
+import { KndItemState, defaultKndDndConfig, dragabbleZ } from './dnd.models';
 import { KndDndService } from '../knd-dnd.service';
-import { combineLatest } from 'rxjs';
 import { KndDrawService } from '../knd-draw.service';
+import { Observable, Subject, Subscription, map, pairwise, pipe, startWith, take, takeUntil } from 'rxjs';
 
 @Directive({
   selector: '[kndDraggable]',
   standalone: true,
 })
-export class DraggableDirective<Item extends object> implements OnInit {
-
+export class DraggableDirective<Item extends object> implements OnInit, OnDestroy {
   @Input({ required: true }) kndItem: Item;
   @HostBinding('draggable') draggable = true; // enables html dragging
   @HostBinding(`class.${defaultKndDndConfig.dragIsDragging}`) private currentElementIsDragging = false;
+  private destroy$ = new Subject<void>()
 
   private dndService = inject(KndDndService<Item>);
   private drawService = inject(KndDrawService<Item>);
   private elRef = inject(ElementRef);
+  private itemState: Observable<KndItemState>
   
-  // TODO: move isDragging logic to dndService
   @HostListener('dragstart', ['$event']) private onDragStart(evt: DragEvent) {
     this.dndService.selectItem(this.kndItem);
-    this.overrideBrowserDefaultDragUI(evt)
-    this.dndService.isDragging.next(true);
+    this.overrideBrowserDefaultDragUiInvisible(evt);
+    this.dndService.startDragging();
   }
 
   @HostListener('dragend', ['$event']) private ondrop(_evt: DragEvent) {
-    this.dndService.isDragging.next(false);
+    this.dndService.stopDragging();
     this.drawService.dropAllDragElements();
   }
 
   /**
-   * Overrides default browser dragUI. 
+   * Overrides default browser dragUI to a non visible one 
    * 
-   * If not overriden the draggable element is displayed, if set to 0x0 div, drag does not works
+   * If not overriden the draggable element is displayed,  
+   * If set to 0x0 div, drag does not works
   */
-  private overrideBrowserDefaultDragUI(event: DragEvent) {
+  private overrideBrowserDefaultDragUiInvisible(event: DragEvent) {
     const dragUI = this.createEmptyDragUI();
     const dragUIRoot = document.documentElement;
     dragUIRoot.appendChild(dragUI);
     event.dataTransfer?.setDragImage(dragUI, 0, 0);
     // remove dragUI from DOM after it got picked up by setDragImage magic
-    setTimeout((_: any) => dragUIRoot.removeChild(dragUI));
+    setTimeout(() => dragUIRoot.removeChild(dragUI));
   }
 
   /**
@@ -58,13 +59,24 @@ export class DraggableDirective<Item extends object> implements OnInit {
   }
 
   ngOnInit() {
-    combineLatest([
-      this.dndService.createIsSelectedObservable(this.kndItem),
-      this.dndService.isDragging
-    ]).subscribe(([isSelected, isDragging]) => {
-      this.currentElementIsDragging = isSelected && isDragging;
-      if (this.currentElementIsDragging) this.drawService.animateElementForDrag(this.createAbsoluteClone());
+    this.itemState = this.dndService.createItemStateObservable(this.kndItem);
+    this.itemState.pipe(
+      takeUntil(this.destroy$),
+      map(state => state.isDragging),
+      startWith(false),
+      pairwise(),
+    ).subscribe(([prev, curr]) => {
+      if (prev == false && curr == true) {
+        this.drawService.animateElementForDrag(this.createAbsoluteClone());
+      }
     });
+    this.itemState.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(itemState => this.currentElementIsDragging = itemState.isDragging);  
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
   }
 
   /**

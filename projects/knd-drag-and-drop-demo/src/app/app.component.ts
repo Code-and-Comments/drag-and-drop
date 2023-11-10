@@ -11,11 +11,9 @@ import { DropInfo } from 'projects/knd-drag-and-drop/src/lib/dnd/dnd.models';
 export class AppComponent implements OnInit {
   
   items: DemoType[] = [];
-  private dndService = inject(KndDndService<DemoType>);
 
   ngOnInit() {
     this.createItems();
-    this.dndService.selectedItems$.subscribe(items => console.log('currentDndContext', items));
   }
 
   createItems() {

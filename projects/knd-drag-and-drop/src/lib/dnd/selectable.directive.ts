@@ -1,7 +1,7 @@
 import { Directive, Input, HostListener, inject, HostBinding, OnInit, ElementRef, OnDestroy } from '@angular/core';
 import { KndDndService } from '../knd-dnd.service';
 import { defaultKndDndConfig } from './dnd.models';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription, takeUntil } from 'rxjs';
 
 @Directive({
   selector: '[kndSelectable]',
@@ -13,7 +13,7 @@ export class SelectableDirective<Item extends object> implements OnInit, OnDestr
   @HostBinding(`class.${defaultKndDndConfig.selectIsShiftHovered}`) private isShiftHovered = false;
   
   private dndService = inject(KndDndService<Item>);
-  private stateSub: Subscription
+  private destroy$ = new Subject<void>()
 
   @HostListener('mouseenter') private onMouseEnter(evt: MouseEvent) {
     this.dndService.hoverItem(this.kndItem);
@@ -24,19 +24,20 @@ export class SelectableDirective<Item extends object> implements OnInit, OnDestr
   }
 
   ngOnInit() {
-    this.stateSub = this.dndService.createItemStateObservable(this.kndItem).subscribe(state => {
+    this.dndService.createItemStateObservable(this.kndItem).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(state => {
       this.isSelected = state.isSelected;
       this.isShiftHovered = state.isShiftHovered;
     });
   }
 
   ngOnDestroy() {
-    this.stateSub.unsubscribe();
+    this.destroy$.next();
   }
 
   selectItem() {
     this.dndService.selectItem(this.kndItem);
-    
   }
 
   deSelectItem() {
