@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "author": "Simon Deutsch",
   "description": "A drag and drop library imitating folder like behaviour to select, drag and drop.",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git@github.com:kandela-io/knd-dnd.git"
