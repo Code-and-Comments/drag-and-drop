@@ -32,8 +32,8 @@ export interface Coordinates {
 export const dragabbleZ = 9999;
 export const dragUIZ = dragabbleZ + 1;
 
-export function createEmptyMap<T>(): Map<KndIdentifier, T> {
-  return new Map<KndIdentifier, T>()
+export function createEmptyMap<I, T>(): Map<I, T> {
+  return new Map<I, T>()
 }
 
 /**
@@ -51,4 +51,16 @@ export function itemsInBetween<T>(items: T[], first: T, second: T): T[] {
    const end = currentIndex > latestSelectedIndex ?  currentIndex : latestSelectedIndex;
    // +1 because slice does not include end index
    return items.slice(start, end + 1);
+}
+
+export interface KndItemState {
+  isDragging: boolean
+  isShiftHovered: boolean
+  isSelected: boolean
+}
+
+
+export type KndMap<T> = Map<KndIdentifier, ({ item: T, state: KndItemState })>
+export function createEmptyKndMap<T>(): KndMap<T> {
+  return new Map<KndIdentifier, ({ item: T, state: KndItemState })>();
 }

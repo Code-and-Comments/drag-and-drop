@@ -1,20 +1,22 @@
 import { BehaviorSubject, Observable, ReplaySubject, Subject, combineLatest, filter, map, take } from 'rxjs';
 import { Injectable, QueryList, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { KndDrawService } from './knd-draw.service';
-import { KndIdentifier, createEmptyMap, itemsInBetween } from './dnd/dnd.models';
+import { KndIdentifier, KndItemState, KndMap, createEmptyKndMap, createEmptyMap, itemsInBetween } from './dnd/dnd.models';
 import { SelectableDirective } from './dnd/selectable.directive';
 
 @Injectable()
 export class KndDndService<Item extends object> {
+
   private rendererFactory = inject(RendererFactory2);
   private renderer: Renderer2;
   private drawService =  inject(KndDrawService);
-  private selectedItems = new BehaviorSubject(createEmptyMap<Item>());
+
+  private selectedItems = new BehaviorSubject(createEmptyMap<KndIdentifier, Item>());
   private shiftIsActive = new BehaviorSubject(false);
   private latestSelectedItem = new BehaviorSubject<Item | null>(null);
   private latestHoveredItem = new BehaviorSubject<Item | null>(null);
-  private hoveredItems = new BehaviorSubject(createEmptyMap<Item>());
 
+  private itemStates: Observable<KndMap<Item>>;
   public allAvailableSelectables = new ReplaySubject<QueryList<SelectableDirective<Item>>>(1);
 
   /**
@@ -25,23 +27,23 @@ export class KndDndService<Item extends object> {
   /**
    * Tracks if a dragging process is currently ongoing  
    * `true` if is dragging, `false` if not
-   * 
-   * TODO: set via renderer instead from draggable?
   */
   public isDragging = new BehaviorSubject(false);
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
-    this.trackKeys();
+    this.initTrackKeys();
 
     // control dragUI
     this.isDragging.subscribe(isDragging => {
       if (isDragging) this.drawService.showDragUI([...this.selectedItems.value.values()]);
       else this.drawService.hideDragUI();
     });
+
+    this.initTrackItemStates();
   }
 
-  private trackKeys() {
+  private initTrackKeys() {
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
       if (evt.shiftKey) this.shiftIsActive.next(true);
       if ((evt.key === 'Escape' || evt.key === 'Esc')) this.deSelectAll();
@@ -49,21 +51,6 @@ export class KndDndService<Item extends object> {
 
     this.renderer.listen(window, 'keyup', (evt: KeyboardEvent) => {
       if (!evt.shiftKey) this.shiftIsActive.next(false);
-    });
-
-    this.shiftIsActive.subscribe(s => console.log('shift', s));
-
-    combineLatest([this.shiftIsActive, this.latestHoveredItem, this.latestSelectedItem])
-    .subscribe(([shiftIsActive, latestHoveredItem, latestSelectedItem]) => {
-      
-      if (shiftIsActive && latestHoveredItem && latestSelectedItem) {
-        console.log('hover');
-        this.shiftHoverItems(latestHoveredItem, latestSelectedItem)
-      }
-      else {
-        console.log('reset hover');
-        this.hoveredItems.next(createEmptyMap<Item>());
-      }
     });
   }
  
@@ -82,6 +69,53 @@ export class KndDndService<Item extends object> {
     return (item as any).id as KndIdentifier
   }
 
+  initTrackItemStates() {
+    const allSelectables = this.allAvailableSelectables.pipe(
+      map(selectables => selectables.toArray().map(s => s.kndItem)),
+    )
+    
+    this.itemStates = combineLatest([allSelectables, this.selectedItems, this.shiftIsActive, this.latestHoveredItem, this.latestSelectedItem, this.isDragging]).pipe(
+      map(([allSelectables, selectedItems, shiftIsActive, latestHoveredItem, latestSelectedItem, isDragging]) => {
+        const map = createEmptyKndMap<Item>();
+
+        // create entries for all existing selectables
+        allSelectables.forEach(item => {
+          const id = this.selectUniqueIdentifier(item);
+          const state: KndItemState = { isDragging: false, isShiftHovered: false, isSelected: false }
+          map.set(id, { item, state })
+        })
+
+        // update selected state for all entries
+        selectedItems.forEach(selItem => {
+          const id = this.selectUniqueIdentifier(selItem);
+          const stateItem = map.get(id); // retrieves a ref
+          stateItem!.state.isSelected = true;
+        })
+
+        // shift hover
+        if (shiftIsActive && latestHoveredItem && latestSelectedItem) {
+          const shouldShiftSelect = itemsInBetween(allSelectables, latestHoveredItem, latestSelectedItem);
+          shouldShiftSelect.forEach(shouldShiftSelectItem => {
+            const id = this.selectUniqueIdentifier(shouldShiftSelectItem);
+            const stateItem = map.get(id); // retrieves a ref
+            stateItem!.state.isShiftHovered = true;
+          });
+        }
+
+        // check if item isDragging
+        if (isDragging) {
+          selectedItems.forEach(selectedItem => {
+            const id = this.selectUniqueIdentifier(selectedItem);
+            const stateItem = map.get(id);
+            stateItem!.state.isDragging = true;
+          })
+        }
+
+        return map;
+      })
+    )
+  }
+
   /**
    * Select an item, adds it to the dnd service context
    * @param item item to be added to the dnd conext
@@ -92,8 +126,7 @@ export class KndDndService<Item extends object> {
       return
     }
     
-    const latestSelectedItem = this.latestSelectedItem.value
-    if (this.shiftIsActive.value && latestSelectedItem) this.shiftSelectItems(item, latestSelectedItem);
+    if (this.shiftIsActive.value && this.latestSelectedItem.value) this.shiftSelectItems();
     else this.selectItemSingle(item);
 
     this.latestSelectedItem.next(item);
@@ -105,28 +138,13 @@ export class KndDndService<Item extends object> {
     );
   }
 
-  private shiftHoverItems(latestSelectedItem: Item, hoveredItem: Item) {
-    this.allAvailableSelectables.pipe(
+  private shiftSelectItems() {
+    this.itemStates.pipe(
       take(1),
-      map(selectables => selectables.toArray().map(s => s.kndItem)),
-      map(kndItemArray => itemsInBetween(kndItemArray, hoveredItem, latestSelectedItem))
-    ).subscribe(hovers => {
-      hovers.forEach(h => 
-        this.hoveredItems.next(
-          this.hoveredItems.value.set(this.selectUniqueIdentifier(h), h)
-        )
-      );
-    });
-  }
-
-  private shiftSelectItems(currentItem: Item, latestSelectedItem: Item) {
-    this.allAvailableSelectables.pipe(
-      take(1),
-      map(selectables => selectables.toArray().map(s => s.kndItem)),
-      map(kndItemArray => itemsInBetween(kndItemArray, latestSelectedItem, currentItem))
-    ).subscribe(selectables => {
-      selectables.forEach(s => this.selectItemSingle(s));
-    });
+      map(items => Array.from(items.values())),
+      map(items => items.filter(item => item.state.isShiftHovered && !item.state.isSelected)),
+      map(items => items.map(i => i.item)),
+    ).subscribe(items => items.forEach(s => this.selectItemSingle(s)));
   }
 
   /**
@@ -156,7 +174,7 @@ export class KndDndService<Item extends object> {
    * Deselect all item, Removes all items from the dnd context
   */
   public deSelectAll() {
-    this.selectedItems.next(createEmptyMap<Item>());
+    this.selectedItems.next(createEmptyMap<KndIdentifier, Item>());
     this.latestSelectedItem.next(null);
     console.log('All items have been deselected');
   }
@@ -170,10 +188,10 @@ export class KndDndService<Item extends object> {
   }
 
   /**
-   * Creates an obserable that tracks if the given item is currently part of the dnd context.
-   * @return Observable that is `true` if item is dnd context, `false` if not
+   * Creates an observable for the state of an item in the current context
+   * @return Observable of item state `KndItemState`
   */
-  public createIsHoveringObservable(item: Item): Observable<boolean> {
-    return this.hoveredItems.pipe(map(items => items.has(this.selectUniqueIdentifier(item))));
+  public createItemStateObservable(item: Item): Observable<KndItemState> {
+    return this.itemStates.pipe(map(items => items.get(this.selectUniqueIdentifier(item))?.state as KndItemState));
   }
 }
