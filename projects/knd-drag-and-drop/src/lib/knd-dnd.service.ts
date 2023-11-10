@@ -1,7 +1,7 @@
 import { BehaviorSubject, Observable, ReplaySubject, Subject, combineLatest, filter, map, take } from 'rxjs';
 import { Injectable, QueryList, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { KndDrawService } from './knd-draw.service';
-import { KndIdentifier, KndItemState, KndMap, createEmptyKndMap, createEmptyMap, itemsInBetween } from './dnd/dnd.models';
+import { Coordinates, KndIdentifier, KndItemState, KndMap, createEmptyKndMap, createEmptyMap, itemsInBetween } from './dnd/dnd.models';
 import { SelectableDirective } from './dnd/selectable.directive';
 
 @Injectable()
@@ -19,19 +19,16 @@ export class KndDndService<Item extends object> {
 
   private itemStates: Observable<KndMap<Item>>;
   public allAvailableSelectables = new ReplaySubject<QueryList<SelectableDirective<Item>>>(1);
-  
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
+    this.initTrackKeys();
+    this.initTrackItemStates();
 
-    // control dragUI
     this.isDragging.subscribe(isDragging => {
       if (isDragging) this.drawService.showDragUI([...this.selectedItems.value.values()]);
       else this.drawService.hideDragUI();
     });
-
-    this.initTrackKeys();
-    this.initTrackItemStates();
   }
 
   private initTrackKeys() {
@@ -44,7 +41,7 @@ export class KndDndService<Item extends object> {
       if (!evt.shiftKey) this.shiftIsActive.next(false);
     });
   }
- 
+
   /**
    * Select uniquie identifiably property of Item.  
    * By default the property `id` is used

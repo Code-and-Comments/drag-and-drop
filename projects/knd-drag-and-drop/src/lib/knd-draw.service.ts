@@ -1,38 +1,23 @@
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { Coordinates, defaultKndDndConfig, dragUIZ } from './dnd/dnd.models';
+import { KndCursorService } from './knd-cursor.service';
 
 @Injectable()
 export class KndDrawService<Item extends object> {
 
   private rendererFactory = inject(RendererFactory2);
+  private cursorService = new KndCursorService();
   private renderer: Renderer2;
   private dragUI: HTMLElement;
-  private cursorPosition = new BehaviorSubject<Coordinates>({ x: 0, y: 0});
   private dragElements: HTMLElement[] = [];
   private dragElementsMoveSub: Subscription;
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
     this.dragUI = this.createDragUI();
-    this.trackCursor()
     this.renderer.appendChild(document.documentElement, this.dragUI);
-  }
-
-  private trackCursor() {
-    this.renderer.listen(window, 'mousemove', (evt: MouseEvent) => {
-      this.updateCursorPosition(evt);
-    });
-    this.renderer.listen(window, 'dragover', (evt: DragEvent) => {
-      evt.preventDefault(); // cancels dragend animation
-      this.updateCursorPosition(evt);
-    });
-    this.cursorPosition.subscribe(pos => this.moveDragUI(pos));
-  }
-
-  private updateCursorPosition(evt: MouseEvent | DragEvent) {
-    if (this.cursorPosition.value.x == evt.clientX && this.cursorPosition.value.y == evt.clientY) return
-    this.cursorPosition.next({ x: evt.clientX, y: evt.clientY })
+    this.cursorService.cursorPosition.subscribe(pos => this.moveDragUI(pos));
   }
 
   /**
@@ -49,7 +34,7 @@ export class KndDrawService<Item extends object> {
     return dragUI;
   }
 
-  private moveDragUI(coords: Coordinates) {
+  public moveDragUI(coords: Coordinates) {
     this.dragUI.style.top = `${coords.y}px`;
     this.dragUI.style.left = `${coords.x}px`;
   }
@@ -65,6 +50,7 @@ export class KndDrawService<Item extends object> {
   }
 
   public dropAllDragElements() {
+    
     this.dragElements.forEach(el => document.documentElement.removeChild(el));
     this.dragElements = [];
     this.dragElementsMoveSub.unsubscribe();
@@ -76,7 +62,7 @@ export class KndDrawService<Item extends object> {
     // slightly to not override the inital position, but just right after
     setTimeout(() => {
       this.dragElements.forEach(de => de.style.transform = 'scale(0.5)');
-      this.dragElementsMoveSub = this.cursorPosition.subscribe(cord => {
+      this.dragElementsMoveSub = this.cursorService.cursorPosition.subscribe(cord => {
         this.dragElements.forEach(de => {
           de.style.top = `${cord.y}px`;
           de.style.left = `${cord.x}px`;
