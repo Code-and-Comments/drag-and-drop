@@ -13,7 +13,7 @@ jobs:
       - run: npm ci
       - run: npm i -g @angular/cli
       - run: ng build knd-dragAndDrop
-      - run: cd dist/knd-drag-and-drop/
       - uses: JS-DevTools/npm-publish@v3
         with:
           token: ${{ secrets.NPM_TOKEN }}
+          package: dist/knd-drag-and-drop
