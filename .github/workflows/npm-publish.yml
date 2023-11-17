@@ -19,8 +19,8 @@ jobs:
         run: |
           git config user.email "ci@kandela.io"
           git config user.name "ci"
-          npm version "${{  github.ref_name }}"
           cd dist/knd-drag-and-drop
+          npm version "${{  github.ref_name }}"
           npm publish
         env:
           NODE_AUTH_TOKEN:  ${{ secrets.NPM_TOKEN }}
