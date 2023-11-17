@@ -1,6 +1,7 @@
 on:
   push:
-    branches: main
+    tags:
+      - '*'
 
 jobs:
   publish:
@@ -11,6 +12,10 @@ jobs:
         with:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
+      - name: GitHub Tag Name example
+        run: |
+         echo "Tag name from GITHUB_REF_NAME: $GITHUB_REF_NAME"
+         echo "Tag name from github.ref_name: ${{  github.ref_name }}"
       - run: npm ci
       - run: npm i -g @angular/cli
       - run: ng build knd-dragAndDrop
