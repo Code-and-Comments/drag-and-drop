@@ -11,7 +11,7 @@ jobs:
         with:
           node-version: "20"
       - run: npm ci
-      - run: npm i @angular/cli
+      - run: npm i -g @angular/cli
       - run: ng build knd-dragAndDrop
       - uses: JS-DevTools/npm-publish@v3
         with:
