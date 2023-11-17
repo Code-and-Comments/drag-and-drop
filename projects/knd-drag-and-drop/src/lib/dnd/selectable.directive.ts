@@ -8,7 +8,7 @@ import { Subject, takeUntil } from 'rxjs';
   standalone: true,
 })
 export class SelectableDirective<Item extends object> implements OnInit, OnDestroy {
-  @Input({ required: true }) kndItem: Item
+  @Input() kndItem: Item
   @HostBinding(`class.${defaultKndDndConfig.selectIsSelected}`) private isSelected = false;
   @HostBinding(`class.${defaultKndDndConfig.selectIsShiftHovered}`) private isShiftHovered = false;
   

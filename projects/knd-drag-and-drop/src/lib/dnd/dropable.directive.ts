@@ -7,7 +7,7 @@ import { KndDndService } from '../services/knd-dnd.service';
   standalone: true
 })
 export class DropableDirective<Item extends object> {
-  @Input({ required: true }) kndDropId: KndIdentifier;
+  @Input() kndDropId: KndIdentifier;
   @HostBinding(`class.${defaultKndDndConfig.dropIsHovering}`) private isHovering = false;
   @Output() gotDropped = new EventEmitter<DropInfo<Item>>();
   private dndService = inject(KndDndService<Item>);
