@@ -1,6 +1,6 @@
 {
   "name": "knd-drag-and-drop",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Simon Deutsch",
   "description": "A drag and drop library imitating folder like behaviour to select, drag and drop.",
   "license": "MIT",
@@ -19,8 +19,8 @@
   ],
   "homepage": "https://github.com/kandela-io/knd-dnd",
   "peerDependencies": {
-    "@angular/common": "^16.1.0",
-    "@angular/core": "^16.1.0"
+    "@angular/common": "^15.0.0",
+    "@angular/core": "^15.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
