@@ -17,7 +17,7 @@ jobs:
       - run: ng build knd-dragAndDrop
       - name: NPM Publish
         run: |
-          npm version ${{  github.ref_name }}"
+          npm version "${{  github.ref_name }}"
           cd dist/knd-drag-and-drop
           npm publish
         env:
