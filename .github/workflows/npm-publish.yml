@@ -13,7 +13,6 @@ jobs:
       - run: npm ci
       - run: npm i -g @angular/cli
       - run: ng build knd-dragAndDrop
-      - name: Publish to NPM
-        run: cd dist/knd-drag-and-drop && npm publish
+      - run: cd dist/knd-drag-and-drop && npm publish
         env:
           NODE_AUTH_TOKEN:  ${{ secrets.NPM_TOKEN }}
