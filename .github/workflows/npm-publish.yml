@@ -17,6 +17,8 @@ jobs:
       - run: ng build knd-dragAndDrop
       - name: NPM Publish
         run: |
+          git config user.email "ci@kandela.io"
+          git config user.name "ci"
           npm version "${{  github.ref_name }}"
           cd dist/knd-drag-and-drop
           npm publish
