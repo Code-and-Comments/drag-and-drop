@@ -13,7 +13,6 @@ jobs:
           node-version: '20.x'
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
-      - run: npm i -g @angular/cli@15.2.10
       - run: ng build knd-dragAndDrop
       - name: NPM Publish
         run: |
