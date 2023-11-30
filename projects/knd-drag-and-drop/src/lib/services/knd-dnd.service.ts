@@ -12,7 +12,7 @@ export class KndDndService<Item extends object> {
   private drawService = new KndDrawService();
 
   private _selectedItems = new BehaviorSubject(new Map<KndIdentifier, Item>());
-  selectedItems = this._selectedItems.asObservable();
+  selectedItems = this._selectedItems.pipe(map(map => Array.from(map.values())));
   private shiftIsActive = new BehaviorSubject(false);
   private latestSelectedItem = new BehaviorSubject<Item | null>(null);
   private latestHoveredItem = new BehaviorSubject<Item | null>(null);
