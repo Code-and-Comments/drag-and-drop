@@ -14,5 +14,5 @@ import { DropableDirective } from 'projects/knd-drag-and-drop/src/public-api';
 })
 export class DropComponent {
 
-  @Input({ required: true }) kndDropId: string;
+  @Input() kndDropId: string;
 }
