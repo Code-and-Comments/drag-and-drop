@@ -18,8 +18,8 @@ import { DemoType } from '../app.component';
 })
 export class DragComponent {
 
-  @Input() item: DemoType
-  private selectableDirective = inject(SelectableDirective, {self: true})
+  @Input() item: DemoType;
+  private selectableDirective = inject(SelectableDirective, {self: true});
 
   selectItem() {
     this.selectableDirective.selectItem();

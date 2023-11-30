@@ -45,7 +45,7 @@ export class SelectableDirective<Item extends object> implements OnInit, OnDestr
   }
 
   get isSelected(): boolean {
-    return this.isSelected
+    return this._isSelected
   }
 
   get isShiftHovered(): boolean {
