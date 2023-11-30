@@ -11,14 +11,15 @@ export class KndDndService<Item extends object> {
   private renderer: Renderer2;
   private drawService = new KndDrawService();
 
-  private selectedItems = new BehaviorSubject(new Map<KndIdentifier, Item>());
+  private _selectedItems = new BehaviorSubject(new Map<KndIdentifier, Item>());
+  selectedItems = this._selectedItems.asObservable();
   private shiftIsActive = new BehaviorSubject(false);
   private latestSelectedItem = new BehaviorSubject<Item | null>(null);
   private latestHoveredItem = new BehaviorSubject<Item | null>(null);
   private isDragging = new BehaviorSubject(false);
 
   private itemStates: Observable<KndMap<Item>>;
-  public allAvailableSelectables = new ReplaySubject<QueryList<SelectableDirective<Item>>>(1);
+  private availableSelectables = new ReplaySubject<QueryList<SelectableDirective<Item>>>(1);
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
@@ -26,7 +27,7 @@ export class KndDndService<Item extends object> {
     this.initTrackItemStates();
 
     this.isDragging.subscribe(isDragging => {
-      if (isDragging) this.drawService.showDragUI([...this.selectedItems.value.values()]);
+      if (isDragging) this.drawService.showDragUI([...this._selectedItems.value.values()]);
       else this.drawService.hideDragUI();
     });
   }
@@ -40,6 +41,10 @@ export class KndDndService<Item extends object> {
     this.renderer.listen(window, 'keyup', (evt: KeyboardEvent) => {
       if (!evt.shiftKey) this.shiftIsActive.next(false);
     });
+  }
+  
+  setAvailableSelectables(queryList: QueryList<SelectableDirective<Item>>) {
+    this.availableSelectables.next(queryList);
   }
 
   /**
@@ -58,11 +63,11 @@ export class KndDndService<Item extends object> {
   }
 
   private initTrackItemStates() {
-    const allSelectables = this.allAvailableSelectables.pipe(
+    const allSelectables = this.availableSelectables.pipe(
       map(selectables => selectables.toArray().map(s => s.kndItem)),
     )
     
-    this.itemStates = combineLatest([allSelectables, this.selectedItems, this.shiftIsActive, this.latestHoveredItem, this.latestSelectedItem, this.isDragging]).pipe(
+    this.itemStates = combineLatest([allSelectables, this._selectedItems, this.shiftIsActive, this.latestHoveredItem, this.latestSelectedItem, this.isDragging]).pipe(
       map(([allSelectables, selectedItems, shiftIsActive, latestHoveredItem, latestSelectedItem, isDragging]) => {
         const map = createEmptyKndMap<Item>();
 
@@ -110,8 +115,8 @@ export class KndDndService<Item extends object> {
    * 
    * automatically detects and select shift select items
   */
-  public selectItem(item: Item) {
-    if (this.selectedItems.value.has(this.selectUniqueIdentifier(item))) {
+  selectItem(item: Item) {
+    if (this._selectedItems.value.has(this.selectUniqueIdentifier(item))) {
       console.info(`Item ${item} is already selected`)
       return
     }
@@ -123,8 +128,8 @@ export class KndDndService<Item extends object> {
   }
 
   private selectItemSingle(item: Item) {
-    this.selectedItems.next(
-      this.selectedItems.value.set(this.selectUniqueIdentifier(item), item)
+    this._selectedItems.next(
+      this._selectedItems.value.set(this.selectUniqueIdentifier(item), item)
     );
   }
 
@@ -141,10 +146,10 @@ export class KndDndService<Item extends object> {
    * Deselect an item, removes it from the dnd context
    * @param item to be removed from the dnd context
   */
-  public deSelectItem(item: Item) {
-    const didDelete = this.selectedItems.value.delete(this.selectUniqueIdentifier(item));
+  deSelectItem(item: Item) {
+    const didDelete = this._selectedItems.value.delete(this.selectUniqueIdentifier(item));
     if (didDelete) {
-      this.selectedItems.next(this.selectedItems.value);
+      this._selectedItems.next(this._selectedItems.value);
       this.latestSelectedItem.next(null);
     }
     else {
@@ -155,14 +160,14 @@ export class KndDndService<Item extends object> {
   /**
    * Inform dnd service that dragging was started
   */
-  public startDragging() {
+  startDragging() {
     if (this.isDragging.value != true) this.isDragging.next(true);
   }
 
   /**
    * Inform dnd service that dragging has ended
   */
-  public stopDragging() {
+  stopDragging() {
     if (this.isDragging.value != false) {
       this.isDragging.next(false);
       this.drawService.dropAllDragElements();
@@ -173,7 +178,7 @@ export class KndDndService<Item extends object> {
    * Start drag animation
    * @param element HTMLElement that should be animated
   */
-  public initDragAnimation(element: HTMLElement) {
+  initDragAnimation(element: HTMLElement) {
     this.drawService.animateElementForDrag(element);
   }
 
@@ -181,22 +186,22 @@ export class KndDndService<Item extends object> {
    * Remember which items is currently hovered - for shift select logic
    * @param item which is hovered
   */
-  public hoverItem(item: Item) {
+  hoverItem(item: Item) {
     if (this.latestHoveredItem.value != item) this.latestHoveredItem.next(item);
   }
 
   /**
    * Reset hovering if item is not hovered anymore - for shift select logic
   */
-  public resetHoverItem() {
+  resetHoverItem() {
     if (this.latestHoveredItem.value != null) this.latestHoveredItem.next(null);
   }
 
   /**
    * Deselect all item, Removes all items from the dnd context
   */
-  public deSelectAll() {
-    this.selectedItems.next(new Map<KndIdentifier, Item>());
+  deSelectAll() {
+    this._selectedItems.next(new Map<KndIdentifier, Item>());
     this.latestSelectedItem.next(null);
     console.log('All items have been deselected');
   }
@@ -204,15 +209,15 @@ export class KndDndService<Item extends object> {
   /**
    * Deselect all item, Removes all items from the dnd context
   */
-  public getAllSelectedItems(): Item[] {
-    return Array.from(this.selectedItems.value.values());
+  getAllSelectedItems(): Item[] {
+    return Array.from(this._selectedItems.value.values());
   }
 
   /**
    * Creates an observable for the state of an item in the current context
    * @return Observable of item state `KndItemState`
   */
-  public createItemStateObservable(item: Item): Observable<KndItemState> {
+  createItemStateObservable(item: Item): Observable<KndItemState> {
     return this.itemStates.pipe(map(items => items.get(this.selectUniqueIdentifier(item))?.state as KndItemState));
   }
 }

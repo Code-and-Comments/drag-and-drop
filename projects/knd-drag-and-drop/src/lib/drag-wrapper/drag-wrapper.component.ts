@@ -16,9 +16,10 @@ export class DragWrapperComponent<Item extends object> implements AfterViewInit,
 
   ngAfterViewInit() {
     // update current available items in knd service
-    this.dndService.allAvailableSelectables.next(this.selectables);
-    this.sub = this.selectables.changes.subscribe(selectables => 
-      this.dndService.allAvailableSelectables.next(selectables)
+    this.dndService.setAvailableSelectables(this.selectables);
+    
+    this.sub = this.selectables.changes.subscribe(selectables =>
+      this.dndService.setAvailableSelectables(selectables)
     );
   }
 

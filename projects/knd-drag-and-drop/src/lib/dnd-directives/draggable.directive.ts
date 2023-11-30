@@ -9,7 +9,7 @@ import { Observable, Subject, map, pairwise, startWith, takeUntil } from 'rxjs';
 })
 export class DraggableDirective<Item extends object> implements OnInit, OnDestroy {
   @Input() kndItem: Item;
-  @HostBinding('draggable') draggable = true; // enables html dragging
+  @HostBinding('draggable') private draggable = true; // enables html dragging
   @HostBinding(`class.${defaultKndDndConfig.dragIsDragging}`) private currentElementIsDragging = false;
   private destroy$ = new Subject<void>()
 

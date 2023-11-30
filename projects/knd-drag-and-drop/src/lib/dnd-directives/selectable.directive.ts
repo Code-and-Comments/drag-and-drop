@@ -9,8 +9,8 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class SelectableDirective<Item extends object> implements OnInit, OnDestroy {
   @Input() kndItem: Item
-  @HostBinding(`class.${defaultKndDndConfig.selectIsSelected}`) private isSelected = false;
-  @HostBinding(`class.${defaultKndDndConfig.selectIsShiftHovered}`) private isShiftHovered = false;
+  @HostBinding(`class.${defaultKndDndConfig.selectIsSelected}`) private _isSelected = false;
+  @HostBinding(`class.${defaultKndDndConfig.selectIsShiftHovered}`) private _isShiftHovered = false;
   
   private dndService = inject(KndDndService<Item>);
   private destroy$ = new Subject<void>()
@@ -27,8 +27,8 @@ export class SelectableDirective<Item extends object> implements OnInit, OnDestr
     this.dndService.createItemStateObservable(this.kndItem).pipe(
       takeUntil(this.destroy$)
     ).subscribe(state => {
-      this.isSelected = state.isSelected;
-      this.isShiftHovered = state.isShiftHovered;
+      this._isSelected = state.isSelected;
+      this._isShiftHovered = state.isShiftHovered;
     });
   }
 
@@ -42,5 +42,13 @@ export class SelectableDirective<Item extends object> implements OnInit, OnDestr
 
   deSelectItem() {
     this.dndService.deSelectItem(this.kndItem);
+  }
+
+  get isSelected(): boolean {
+    return this.isSelected
+  }
+
+  get isShiftHovered(): boolean {
+    return this._isShiftHovered
   }
 }
