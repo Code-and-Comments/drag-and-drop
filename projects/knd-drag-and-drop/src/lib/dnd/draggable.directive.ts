@@ -1,7 +1,7 @@
 import { Directive, ElementRef, HostBinding, HostListener, Input, OnDestroy, OnInit, inject } from '@angular/core';
 import { KndItemState, defaultKndDndConfig, dragabbleZ } from '../dnd';
 import { KndDndService } from '../services/knd-dnd.service';
-import { Observable, Subject, filter, map, pairwise, skipWhile, startWith, takeUntil } from 'rxjs';
+import { Observable, Subject, map, pairwise, startWith, takeUntil } from 'rxjs';
 
 @Directive({
   selector: '[kndDraggable]',
@@ -56,7 +56,7 @@ export class DraggableDirective<Item extends object> implements OnInit, OnDestro
   }
 
   ngOnInit() {
-    this.itemState = this.dndService.createItemStateObservable(this.kndItem).pipe(filter(i => i != null));
+    this.itemState = this.dndService.createItemStateObservable(this.kndItem);
     this.itemState.pipe(
       takeUntil(this.destroy$),
       map(state => state.isDragging),

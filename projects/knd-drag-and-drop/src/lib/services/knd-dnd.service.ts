@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, ReplaySubject, combineLatest, map, take } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, combineLatest, filter, map, take } from 'rxjs';
 import { Injectable, QueryList, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { KndDrawService } from './knd-draw.service';
 import { KndIdentifier, KndItemState, KndMap, createEmptyKndMap, itemsInBetween } from '../dnd';
@@ -218,6 +218,9 @@ export class KndDndService<Item extends object> {
    * @return Observable of item state `KndItemState`
   */
   createItemStateObservable(item: Item): Observable<KndItemState> {
-    return this.itemStates.pipe(map(items => items.get(this.selectUniqueIdentifier(item))?.state as KndItemState));
+    return this.itemStates.pipe(
+      map(items => items.get(this.selectUniqueIdentifier(item))?.state as KndItemState),
+      filter(i => i != null),
+    );
   }
 }
