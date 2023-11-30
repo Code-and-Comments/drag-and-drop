@@ -3,7 +3,14 @@
   <cp-drop [kndDropId]="'2'"></cp-drop>
   <cp-drop [kndDropId]="'3'" (gotDropped)="gotDropped($event)"></cp-drop>
 </div>
+
 <br><br><br><br><br><br>
+
 <knd-drag-wrapper class="cp-drag-wrapper">
   <cp-drag *ngFor="let item of items" [item]="item" [kndItem]="item"></cp-drag>
 </knd-drag-wrapper>
+
+<br><br><br>
+<button (click)="createItems()">re-create items</button>
+<button (click)="emptyItems()">clear items</button>
+<br><br><br>

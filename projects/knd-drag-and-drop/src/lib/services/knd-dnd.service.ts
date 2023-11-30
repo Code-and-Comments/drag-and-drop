@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, ReplaySubject, combineLatest, filter, map, take } from 'rxjs';
+import { BehaviorSubject, Observable, ReplaySubject, combineLatest, filter, map, shareReplay, take, tap } from 'rxjs';
 import { Injectable, QueryList, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { KndDrawService } from './knd-draw.service';
 import { KndIdentifier, KndItemState, KndMap, createEmptyKndMap, itemsInBetween } from '../dnd';
@@ -19,7 +19,7 @@ export class KndDndService<Item extends object> {
   private isDragging = new BehaviorSubject(false);
 
   private itemStates: Observable<KndMap<Item>>;
-  private availableSelectables = new ReplaySubject<QueryList<SelectableDirective<Item>>>(1);
+  private availableSelectables = new BehaviorSubject<Item[]>([]);
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
@@ -44,7 +44,7 @@ export class KndDndService<Item extends object> {
   }
   
   setAvailableSelectables(queryList: QueryList<SelectableDirective<Item>>) {
-    this.availableSelectables.next(queryList);
+    this.availableSelectables.next(queryList.toArray().map(s => s.kndItem));
   }
 
   /**
@@ -63,11 +63,7 @@ export class KndDndService<Item extends object> {
   }
 
   private initTrackItemStates() {
-    const allSelectables = this.availableSelectables.pipe(
-      map(selectables => selectables.toArray().map(s => s.kndItem)),
-    )
-    
-    this.itemStates = combineLatest([allSelectables, this._selectedItems, this.shiftIsActive, this.latestHoveredItem, this.latestSelectedItem, this.isDragging]).pipe(
+    this.itemStates = combineLatest([this.availableSelectables, this._selectedItems, this.shiftIsActive, this.latestHoveredItem, this.latestSelectedItem, this.isDragging]).pipe(
       map(([allSelectables, selectedItems, shiftIsActive, latestHoveredItem, latestSelectedItem, isDragging]) => {
         const map = createEmptyKndMap<Item>();
 
@@ -82,7 +78,7 @@ export class KndDndService<Item extends object> {
         selectedItems.forEach(selItem => {
           const id = this.selectUniqueIdentifier(selItem);
           const stateItem = map.get(id); // retrieves a ref
-          stateItem!.state.isSelected = true;
+          if (stateItem) stateItem!.state.isSelected = true;
         })
 
         // shift hover
@@ -100,12 +96,13 @@ export class KndDndService<Item extends object> {
           selectedItems.forEach(selectedItem => {
             const id = this.selectUniqueIdentifier(selectedItem);
             const stateItem = map.get(id);
-            stateItem!.state.isDragging = true;
+            if (stateItem) stateItem.state.isDragging = true;
           })
         }
 
         return map;
-      })
+      }),
+      shareReplay(1),
     )
   }
 

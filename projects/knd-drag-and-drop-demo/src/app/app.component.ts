@@ -14,9 +14,15 @@ export class AppComponent implements OnInit {
     this.createItems();
   }
 
+  emptyItems() {
+    this.items = [];
+  }
+
   createItems() {
+    const items: DemoType[] = [];
     const arr = Array.from(Array(10)).map((_, i) => i);
-    arr.forEach(index => this.items.push({ id: `${index}`, name: `Item ${index}`}));
+    arr.forEach(index => items.push({ id: `${Math.random()}`, name: `Item ${index}`}));
+    this.items = items;
 
     // setTimeout(() => {
     //   const arr2 = Array.from(Array(10)).map((_, i) => i+10);

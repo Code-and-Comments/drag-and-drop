@@ -2,10 +2,17 @@
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+    height: 160px;
 }
 
 .cp-drop-wrapper {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+}
+
+button {
+    padding: 10px;
+    background-color: blue;
+    color: white;
 }
