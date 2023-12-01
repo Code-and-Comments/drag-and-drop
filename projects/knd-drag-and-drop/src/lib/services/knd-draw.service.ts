@@ -50,7 +50,6 @@ export class KndDrawService<Item extends object> {
   }
 
   public dropAllDragElements() {
-    
     this.dragElements.forEach(el => document.documentElement.removeChild(el));
     this.dragElements = [];
     this.dragElementsMoveSub.unsubscribe();

@@ -1,13 +1,13 @@
 <div class="cp-drag-wrapper">
-  <cp-drop [kndDropId]="'1'"></cp-drop>
-  <cp-drop [kndDropId]="'2'"></cp-drop>
+  <cp-drop [kndDropId]="'1'" (gotDropped)="gotDropped($event)"></cp-drop>
+  <cp-drop [kndDropId]="'2'" (gotDropped)="gotDropped($event)"></cp-drop>
   <cp-drop [kndDropId]="'3'" (gotDropped)="gotDropped($event)"></cp-drop>
 </div>
 
-<br><br><br><br><br><br>
+<br><br><br>
 
 <knd-drag-wrapper class="cp-drag-wrapper">
-  <cp-drag *ngFor="let item of items" [item]="item" [kndItem]="item"></cp-drag>
+  <cp-drag [id]="item.id" *ngFor="let item of items" [item]="item" [kndItem]="item"></cp-drag>
 </knd-drag-wrapper>
 
 <br><br><br>

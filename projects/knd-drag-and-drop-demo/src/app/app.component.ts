@@ -23,15 +23,11 @@ export class AppComponent implements OnInit {
     const arr = Array.from(Array(10)).map((_, i) => i);
     arr.forEach(index => items.push({ id: `${Math.random()}`, name: `Item ${index}`}));
     this.items = items;
-
-    // setTimeout(() => {
-    //   const arr2 = Array.from(Array(10)).map((_, i) => i+10);
-    //   arr2.forEach(index => this.items.push({ id: `${index}`, name: `Item ${index}`}));
-    // }, 2000);
   }
 
   gotDropped(drop: DropInfo<DemoType>)  {
     console.log('drop', drop);
+    this.items = this.items.filter(i => !drop.dragItems.includes(i));
   }
 }
 

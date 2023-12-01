@@ -4,22 +4,23 @@ import { AppComponent, DemoType } from './app.component';
 import { DropComponent } from './drop-component/drop.component';
 import { DragComponent } from './drag-component/drag.component';
 import { CommonModule } from '@angular/common';
-import { DragWrapperComponent, KndDndService } from 'projects/knd-drag-and-drop/src/public-api';
+import { DragWrapperComponent, DropableDirective, KndDndService } from 'projects/knd-drag-and-drop/src/public-api';
+import { AppRoutingModule } from './app-routing.module';
 
 @NgModule({
-  declarations: [
-    AppComponent
-  ],
   imports: [
     BrowserModule,
     DragComponent,
     DropComponent,
     CommonModule,
     DragWrapperComponent,
+    DropableDirective,
+    AppRoutingModule,
   ],
   providers: [
-    KndDndService<DemoType>
+    KndDndService<DemoType>,
   ],
+  declarations: [AppComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
