@@ -1,6 +1,7 @@
 import { Directive, Output, EventEmitter, HostBinding, HostListener, Input, inject } from '@angular/core';
-import { DropInfo, KndIdentifier, defaultKndDndConfig } from '../dnd';
+import { DropInfo, KndIdentifier } from '../dnd';
 import { KndDndService } from '../services/knd-dnd.service';
+import { defaultKndDndCssConfig } from '../knd-dnd-configuration';
 
 @Directive({
   selector: '[kndDropable]',
@@ -8,7 +9,7 @@ import { KndDndService } from '../services/knd-dnd.service';
 })
 export class DropableDirective<Item extends object> {
   @Input() kndDropId: KndIdentifier;
-  @HostBinding(`class.${defaultKndDndConfig.dropIsHovering}`) private isHovering = false;
+  @HostBinding(`class.${defaultKndDndCssConfig.dropIsHovering}`) private isHovering = false;
   @Output() gotDropped = new EventEmitter<DropInfo<Item>>();
   private dndService = inject(KndDndService<Item>);
 

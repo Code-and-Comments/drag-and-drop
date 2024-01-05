@@ -1,7 +1,8 @@
 import { Directive, ElementRef, HostBinding, HostListener, Input, OnDestroy, OnInit, inject } from '@angular/core';
-import { KndItemState, defaultKndDndConfig, dragabbleZ } from '../dnd';
+import { KndItemState, dragabbleZ } from '../dnd';
 import { KndDndService } from '../services/knd-dnd.service';
 import { Observable, Subject, map, pairwise, startWith, takeUntil } from 'rxjs';
+import { defaultKndDndCssConfig } from '../knd-dnd-configuration';
 
 @Directive({
   selector: '[kndDraggable]',
@@ -10,7 +11,7 @@ import { Observable, Subject, map, pairwise, startWith, takeUntil } from 'rxjs';
 export class DraggableDirective<Item extends object> implements OnInit, OnDestroy {
   @Input() kndItem: Item;
   @HostBinding('draggable') private draggable = true; // enables html dragging
-  @HostBinding(`class.${defaultKndDndConfig.dragIsDragging}`) private currentElementIsDragging = false;
+  @HostBinding(`class.${defaultKndDndCssConfig.dragIsDragging}`) private currentElementIsDragging = false;
   private destroy$ = new Subject<void>()
 
   private dndService = inject(KndDndService<Item>);

@@ -1,19 +1,19 @@
 import { Directive, Input, HostListener, inject, HostBinding, OnInit, OnDestroy } from '@angular/core';
 import { KndDndService } from '../services/knd-dnd.service';
-import { defaultKndDndConfig } from '../dnd';
 import { Subject, takeUntil } from 'rxjs';
+import { defaultKndDndCssConfig } from '../knd-dnd-configuration';
 
 @Directive({
   selector: '[kndSelectable]',
   standalone: true,
 })
 export class SelectableDirective<Item extends object> implements OnInit, OnDestroy {
-  @Input() kndItem: Item
-  @HostBinding(`class.${defaultKndDndConfig.selectIsSelected}`) private _isSelected = false;
-  @HostBinding(`class.${defaultKndDndConfig.selectIsShiftHovered}`) private _isShiftHovered = false;
+  @Input() kndItem: Item;
+  @HostBinding(`class.${defaultKndDndCssConfig.selectIsSelected}`) private _isSelected = false;
+  @HostBinding(`class.${defaultKndDndCssConfig.selectIsShiftHovered}`) private _isShiftHovered = false;
   
   private dndService = inject(KndDndService<Item>);
-  private destroy$ = new Subject<void>()
+  private destroy$ = new Subject<void>();
 
   @HostListener('mouseenter') private onMouseEnter(evt: MouseEvent) {
     this.dndService.hoverItem(this.kndItem);

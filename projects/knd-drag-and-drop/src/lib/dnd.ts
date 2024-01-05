@@ -1,24 +1,5 @@
 export type KndIdentifier = string
 
-export interface KndDndConfig {
-    selectIsSelected: string;
-    selectIsHovered: string;
-    selectIsShiftHovered: string;
-    dragIsDragging: string;
-    dropIsHovering: string;
-    dragUI: string
-}
-
-// move this to a provider!!
-export const defaultKndDndConfig: KndDndConfig = {
-    selectIsSelected: 'knd-select-isSelected',
-    selectIsHovered: 'knd-select-isHovered',
-    selectIsShiftHovered: 'knd-select-isShiftHovered',
-    dragIsDragging: 'knd-drag-isDragging',
-    dropIsHovering: 'knd-drop-isHovering',
-    dragUI: 'knd-dragUI',
-}
-
 export interface DropInfo<Item> {
   dropId: KndIdentifier;
   dragItems: Item[];

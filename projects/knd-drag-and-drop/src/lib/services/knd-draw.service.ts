@@ -1,7 +1,8 @@
-import { BehaviorSubject, Subscription } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
-import { Coordinates, defaultKndDndConfig, dragUIZ } from '../dnd';
+import { Coordinates, dragUIZ } from '../dnd';
 import { KndCursorService } from './knd-cursor.service';
+import { defaultKndDndCssConfig } from '../knd-dnd-configuration';
 
 @Injectable()
 export class KndDrawService<Item extends object> {
@@ -30,7 +31,7 @@ export class KndDrawService<Item extends object> {
     dragUI.style.transition = 'opacity .25s linear';
     dragUI.style.opacity = '0';
     dragUI.style.zIndex = `${dragUIZ}`;
-    dragUI.classList.add(defaultKndDndConfig.dragUI);
+    dragUI.classList.add(defaultKndDndCssConfig.dragUI);
     return dragUI;
   }
 
