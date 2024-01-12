@@ -1,7 +1,7 @@
 import { InjectionToken } from '@angular/core';
+import { KndIdentifier } from './dnd';
 
-// export const KNDDND_CONFIG_CSS = new InjectionToken<KndDndCssConfig>('knddnd.config.css');
-export const KNDDND_CONFIG_DND = new InjectionToken<KndDndCssConfig>('knddnd.config.dnd');
+export const KNDDND_CONFIG = new InjectionToken<KndDndConfig>('knddnd.config');
 
 export interface KndDndCssConfig {
     selectIsSelected: string;
@@ -12,7 +12,6 @@ export interface KndDndCssConfig {
     dragUI: string
 }
 
-// move this to a provider!!
 export const defaultKndDndCssConfig: KndDndCssConfig = {
     selectIsSelected: 'knd-select-isSelected',
     selectIsHovered: 'knd-select-isHovered',
@@ -20,4 +19,9 @@ export const defaultKndDndCssConfig: KndDndCssConfig = {
     dragIsDragging: 'knd-drag-isDragging',
     dropIsHovering: 'knd-drop-isHovering',
     dragUI: 'knd-dragUI',
+}
+
+export interface KndDndConfig {
+    updateDragUI?<Item>(dragUI: HTMLDivElement, items?: Item[]): void
+    selectUniqueIdentifier?<Item>(item: Item): KndIdentifier
 }

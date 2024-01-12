@@ -3,6 +3,7 @@ import { Injectable, QueryList, Renderer2, RendererFactory2, inject } from '@ang
 import { KndDrawService } from './knd-draw.service';
 import { KndIdentifier, KndItemState, KndMap, createEmptyKndMap, itemsInBetween } from '../dnd';
 import { SelectableDirective } from '../dnd-directives/selectable.directive';
+import { KNDDND_CONFIG } from '../knd-dnd-configuration';
 
 @Injectable()
 export class KndDndService<Item extends object> {
@@ -20,6 +21,8 @@ export class KndDndService<Item extends object> {
 
   private itemStates: Observable<KndMap<Item>>;
   private availableSelectables = new BehaviorSubject<Item[]>([]);
+  
+  private dndConfig? = inject(KNDDND_CONFIG, { optional: true});
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
@@ -51,15 +54,23 @@ export class KndDndService<Item extends object> {
    * Select uniquie identifiably property of Item.  
    * By default the property `id` is used
   */
-  protected selectUniqueIdentifier: ((item: Item) => KndIdentifier) = (item: Item) => {
+  private selectUniqueIdentifier: ((item: Item) => KndIdentifier) = (item: Item) => {
+    if (this.dndConfig?.selectUniqueIdentifier) {
+      const id = this.dndConfig.selectUniqueIdentifier(item);
+      if (id == null) { 
+        console.error(`Custom selectUniqueIdentifier returned null/undefined, please always return a value.`);
+      }
+      return id;
+    }
     if (!Object.hasOwn(item, 'id')) {
       console.error(`
         KndDndService needs a unique identifier to work. 
         By default property "id", but could not be found in ${item}.
-        Please override 'selectId' to select a different unique object property.
+        Please implement and inject the 'selectUniqueIdentifier' method to select a different unique object property.
+        This can be done via the KNDDND_CONFIG injection token by implementing the KndDndConfig interface
       `)
     }
-    return (item as any).id as KndIdentifier
+    return (item as any).id as KndIdentifier;
   }
 
   private initTrackItemStates() {

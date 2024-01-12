@@ -1,8 +1,8 @@
 import { Subscription } from 'rxjs';
-import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
+import { Injectable, Optional, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { Coordinates, dragUIZ } from '../dnd';
 import { KndCursorService } from './knd-cursor.service';
-import { defaultKndDndCssConfig } from '../knd-dnd-configuration';
+import { KNDDND_CONFIG, defaultKndDndCssConfig } from '../knd-dnd-configuration';
 
 @Injectable()
 export class KndDrawService<Item extends object> {
@@ -10,9 +10,11 @@ export class KndDrawService<Item extends object> {
   private rendererFactory = inject(RendererFactory2);
   private cursorService = new KndCursorService();
   private renderer: Renderer2;
-  private dragUI: HTMLElement;
+  private dragUI: HTMLDivElement;
   private dragElements: HTMLElement[] = [];
   private dragElementsMoveSub: Subscription;
+
+  private dndConfig? = inject(KNDDND_CONFIG, { optional: true});
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
@@ -24,7 +26,7 @@ export class KndDrawService<Item extends object> {
   /**
    * Create DragUI which will be shown/hidden on drag events
   */
-  private createDragUI(): HTMLElement {
+  private createDragUI(): HTMLDivElement {
     const dragUI = document.createElement('div');
     dragUI.style.position = 'absolute';
     dragUI.style.pointerEvents = 'none'; // otherwise the div breaks drag over
@@ -41,7 +43,8 @@ export class KndDrawService<Item extends object> {
   }
 
   public showDragUI(items?: Item[]) {
-    this.dragUI.innerHTML = (items) ? `${items.length}` : '';
+    if (this.dndConfig?.updateDragUI) this.dndConfig.updateDragUI(this.dragUI, items);
+    else this.dragUI.innerHTML = (items) ? `${items.length}` : '';
     // timeout to move delay the actual call slightly to run after the cursor tracking
     setTimeout(() => this.dragUI.style.opacity = '100%');
   }
