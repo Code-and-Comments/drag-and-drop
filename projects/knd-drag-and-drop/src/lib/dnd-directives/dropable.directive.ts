@@ -34,7 +34,7 @@ export class DropableDirective<Item extends object> {
     const items = this.dndService.getAllSelectedItems();
     // use setTimeout to move gotDroppped after draggable drag end,
     // otherwise dragend might not run if the draggable gets removed from the DOM in the drop event
-    setTimeout(() => this.gotDropped.emit({ dropId: this.kndDropId, dragItems: items }));
+    setTimeout(() => this.gotDropped.emit({ dropId: this.kndDropId, dragItems: items }), 10);
 
     // clear dnd events -> maybe manually because we need to wait for success?
     this.dndService.deSelectAll();
