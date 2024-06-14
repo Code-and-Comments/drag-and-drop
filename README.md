@@ -1,6 +1,6 @@
-# KndDragAndDrop
+# @code-and-comments/drag-and-drop
 
-Custom DnD Service for Kandela
+Custom DnD Service for Code and Comments Projects
 
 ## Graphical Overview
 <img src="./dnd.png">
