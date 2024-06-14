@@ -23,16 +23,6 @@
             }
           },
           "defaultConfiguration": "production"
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "tsConfig": "projects/knd-drag-and-drop/tsconfig.spec.json",
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ]
-          }
         }
       }
     },
@@ -98,10 +88,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "knd-dragAndDrop-demo:build:production"
+              "buildTarget": "knd-dragAndDrop-demo:build:production"
             },
             "development": {
-              "browserTarget": "knd-dragAndDrop-demo:build:development"
+              "buildTarget": "knd-dragAndDrop-demo:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -109,26 +99,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "knd-dragAndDrop-demo:build"
-          }
-        },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
-          "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
-            "tsConfig": "projects/knd-drag-and-drop-demo/tsconfig.spec.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              "projects/knd-drag-and-drop-demo/src/favicon.ico",
-              "projects/knd-drag-and-drop-demo/src/assets"
-            ],
-            "styles": [
-              "projects/knd-drag-and-drop-demo/src/styles.scss"
-            ],
-            "scripts": []
+            "buildTarget": "knd-dragAndDrop-demo:build"
           }
         }
       }
