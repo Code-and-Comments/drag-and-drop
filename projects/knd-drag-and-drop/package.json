@@ -1,5 +1,5 @@
 {
-  "name": "knd-drag-and-drop",
+  "name": "@code-and-comments/drag-and-drop",
   "version": "0.0.1",
   "author": "Simon Deutsch",
   "description": "A drag and drop library imitating folder like behaviour to select, drag and drop.",
