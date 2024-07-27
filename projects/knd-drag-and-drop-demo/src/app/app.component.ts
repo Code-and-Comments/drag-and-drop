@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { ModalController } from '@ionic/angular';
 import { DropInfo } from 'projects/knd-drag-and-drop/src/lib/dnd';
+import { ModalComponent } from './modal/modal.component';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +11,7 @@ import { DropInfo } from 'projects/knd-drag-and-drop/src/lib/dnd';
 export class AppComponent implements OnInit {
   
   items: DemoType[] = [];
+  private modalController = inject(ModalController);
 
   ngOnInit() {
     this.createItems();
@@ -28,6 +31,14 @@ export class AppComponent implements OnInit {
   gotDropped(drop: DropInfo<DemoType>)  {
     console.log('drop', drop);
     this.items = this.items.filter(i => !drop.dragItems.includes(i));
+  }
+
+  async popModal() {
+    const modal = await this.modalController.create({
+      component: ModalComponent,
+      cssClass: 'modal-max',
+    })
+    modal.present();
   }
 }
 

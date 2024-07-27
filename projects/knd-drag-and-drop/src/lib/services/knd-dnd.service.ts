@@ -25,7 +25,7 @@ export class KndDndService<Item extends object> {
   private dndConfig? = inject(KNDDND_CONFIG, { optional: true});
 
   constructor() {
-    this.renderer = this.rendererFactory.createRenderer(null, null);
+    this.renderer = this.rendererFactory.createRenderer(window, null);
     this.initTrackKeys();
     this.initTrackItemStates();
 
@@ -33,6 +33,10 @@ export class KndDndService<Item extends object> {
       if (isDragging) this.drawService.showDragUI([...this._selectedItems.value.values()]);
       else this.drawService.hideDragUI();
     });
+
+    if (this.dndConfig?.debug) {
+      this.shiftIsActive.subscribe(shiftActice => console.log('shiftIsActive', shiftActice));
+    }
   }
 
   private initTrackKeys() {
@@ -125,7 +129,9 @@ export class KndDndService<Item extends object> {
   */
   selectItem(item: Item) {
     if (this._selectedItems.value.has(this.selectUniqueIdentifier(item))) {
-      console.info(`Item ${item} is already selected`)
+      if (this.dndConfig?.debug) {
+        console.info(`Item ${item} is already selected`)
+      }
       return
     }
     

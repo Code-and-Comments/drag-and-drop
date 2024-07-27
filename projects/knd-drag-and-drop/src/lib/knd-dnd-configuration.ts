@@ -24,4 +24,5 @@ export const defaultKndDndCssConfig: KndDndCssConfig = {
 export interface KndDndConfig {
     updateDragUI?<Item>(dragUI: HTMLDivElement, items?: Item[]): void
     selectUniqueIdentifier?<Item>(item: Item): KndIdentifier
+    debug: boolean;
 }
