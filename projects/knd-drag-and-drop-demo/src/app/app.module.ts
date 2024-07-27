@@ -13,9 +13,6 @@ import { KndIdentifier } from 'projects/knd-drag-and-drop/src/lib/dnd';
 
 class DnDConfig implements KndDndConfig {
   debug = false;
-  selectUniqueIdentifier?<Item>(item: Item): KndIdentifier {
-    throw new Error('Method not implemented.');
-  }
   updateDragUI(dragUI: HTMLDivElement, items?: any[] | undefined): void {
     dragUI.innerHTML = `${(items ?? []).length}`
   }
