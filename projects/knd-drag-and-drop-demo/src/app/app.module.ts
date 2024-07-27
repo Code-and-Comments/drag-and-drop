@@ -12,7 +12,7 @@ import { ModalComponent } from './modal/modal.component';
 import { KndIdentifier } from 'projects/knd-drag-and-drop/src/lib/dnd';
 
 class DnDConfig implements KndDndConfig {
-  debug = false;
+  debug = true;
   updateDragUI(dragUI: HTMLDivElement, items?: any[] | undefined): void {
     dragUI.innerHTML = `${(items ?? []).length}`
   }

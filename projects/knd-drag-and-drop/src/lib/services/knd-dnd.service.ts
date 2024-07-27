@@ -217,7 +217,9 @@ export class KndDndService<Item extends object> {
   deSelectAll() {
     this._selectedItems.next(new Map<KndIdentifier, Item>());
     this.latestSelectedItem.next(null);
-    console.log('All items have been deselected');
+    if (this.dndConfig?.debug == true) {
+      console.log('All items have been deselected');
+    }
   }
 
   /**

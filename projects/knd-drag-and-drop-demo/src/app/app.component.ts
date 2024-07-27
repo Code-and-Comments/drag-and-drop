@@ -36,7 +36,7 @@ export class AppComponent implements OnInit {
   async popModal() {
     const modal = await this.modalController.create({
       component: ModalComponent,
-      cssClass: 'modal-max',
+      cssClass: '',
     })
     modal.present();
   }
