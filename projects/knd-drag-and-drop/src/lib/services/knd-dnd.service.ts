@@ -114,6 +114,9 @@ export class KndDndService<Item extends object> {
             if (stateItem) stateItem.state.isDragging = true;
           })
         }
+        if (this.dndConfig?.debug) {
+          console.log('itemStates', map);
+        }
 
         return map;
       }),
