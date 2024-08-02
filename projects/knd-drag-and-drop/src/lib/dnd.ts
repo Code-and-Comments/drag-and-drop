@@ -21,16 +21,17 @@ export const dragUIZ = dragabbleZ + 1;
 * @return items between borders, including the border items
 */
 export function itemsInBetween<T>(items: T[], item1: T, item2: T): T[] {
-   const item1Index = items.indexOf(item1);
-   const item2Index = items.indexOf(item2);
-   console.log(item1Index, item2Index);
-   const start = item1Index > item2Index ? item2Index : item1Index;
-   const end = item1Index > item2Index ?  item1Index : item2Index;
-   console.log(start, end);
-   // +1 because slice does not include end index
-   const result = items.slice(start, end + 1);
-   console.log(result);
-   return result
+  console.log(items, item1, item2);
+  const item1Index = items.indexOf(item1);
+  const item2Index = items.indexOf(item2);
+  console.log(item1Index, item2Index);
+  const start = item1Index > item2Index ? item2Index : item1Index;
+  const end = item1Index > item2Index ?  item1Index : item2Index;
+  console.log(start, end);
+  // +1 because slice does not include end index
+  const result = items.slice(start, end + 1);
+  console.log(result);
+  return result
 }
 
 export interface KndItemState {
