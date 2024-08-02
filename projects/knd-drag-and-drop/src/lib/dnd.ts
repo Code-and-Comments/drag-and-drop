@@ -14,18 +14,17 @@ export const dragabbleZ = 9999;
 export const dragUIZ = dragabbleZ + 1;
 
 /**
-* Find all items between two items in the array, including first and second item
-* @param first
-* @param second
-* @return items between first and second item
+* Find all items between two items in the array, including borders
+* @param items all items
+* @param item1 border item 1
+* @param item2 border item 2
+* @return items between borders, including the border items
 */
-export function itemsInBetween<T>(items: T[], first: T, second: T): T[] {
- // this.selectables.pipe(take(1)).subscribe(selectables => {
-   // const kndItemArray = selectables.toArray().map(s => s.kndItem);
-   const currentIndex = items.indexOf(first);
-   const latestSelectedIndex = items.indexOf(second);
-   const start = currentIndex > latestSelectedIndex ? latestSelectedIndex : currentIndex;
-   const end = currentIndex > latestSelectedIndex ?  currentIndex : latestSelectedIndex;
+export function itemsInBetween<T>(items: T[], item1: T, item2: T): T[] {
+   const item1Index = items.indexOf(item1);
+   const item2Index = items.indexOf(item2);
+   const start = item1Index > item2Index ? item2Index : item1Index;
+   const end = item1Index > item2Index ?  item1Index : item2Index;
    // +1 because slice does not include end index
    return items.slice(start, end + 1);
 }

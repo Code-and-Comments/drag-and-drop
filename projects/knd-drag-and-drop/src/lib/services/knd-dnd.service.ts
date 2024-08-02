@@ -85,6 +85,7 @@ export class KndDndService<Item extends object> {
   private initTrackItemStates() {
     this.itemStates = combineLatest([this.availableSelectables, this._selectedItems, this.shiftIsActive, this.latestHoveredItem, this.latestSelectedItem, this.isDragging]).pipe(
       map(([allSelectables, selectedItems, shiftIsActive, latestHoveredItem, latestSelectedItem, isDragging]) => {
+        if (this.dndConfig?.debug) console.log('refresh itemStates');
         const map = createEmptyKndMap<Item>();
 
         // create entries for all existing selectables
@@ -103,6 +104,12 @@ export class KndDndService<Item extends object> {
 
         // shift hover
         if (shiftIsActive && latestHoveredItem && latestSelectedItem) {
+          if (this.dndConfig?.debug) {
+            this.logItemArray('shouldShiftSelect - allSelectables', allSelectables);
+            this.logItem('shouldShiftSelect - latestHoveredItem', latestHoveredItem);
+            this.logItem('shouldShiftSelect - latestSelectedItem', latestSelectedItem);
+          }
+
           const shouldShiftSelect = itemsInBetween(allSelectables, latestHoveredItem, latestSelectedItem);
           if (this.dndConfig?.debug) this.logItemArray('shouldShiftSelect', shouldShiftSelect)
           shouldShiftSelect.forEach(shouldShiftSelectItem => {
@@ -221,6 +228,7 @@ export class KndDndService<Item extends object> {
    * Deselect all item, Removes all items from the dnd context
   */
   deSelectAll() {
+    if (this._selectedItems.value.size === 0) return;
     this._selectedItems.next(new Map<KndIdentifier, Item>());
     this.latestSelectedItem.next(null);
     if (this.dndConfig?.debug == true) {
@@ -254,7 +262,7 @@ export class KndDndService<Item extends object> {
     const logOutput = item == null ? item : this.selectUniqueIdentifier(item);
     console.log(label, logOutput);
   }
-  
+
   /**
    * Helper function to log item array
    * used for debug mode
