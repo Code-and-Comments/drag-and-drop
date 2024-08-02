@@ -36,17 +36,19 @@ export class KndDndService<Item extends object> {
 
     if (this.dndConfig?.debug) {
       this.shiftIsActive.subscribe(shiftActice => console.log('shiftIsActive', shiftActice));
+      this.latestHoveredItem.subscribe(item => console.log('latestHoveredItem', item));
+      this.latestSelectedItem.subscribe(item => console.log('latestSelectedItem', item));
     }
   }
 
   private initTrackKeys() {
     this.renderer.listen(window, 'keydown', (evt: KeyboardEvent) => {
-      if (evt.shiftKey) this.shiftIsActive.next(true);
+      if (evt.shiftKey && this.shiftIsActive.value != true) this.shiftIsActive.next(true);
       if ((evt.key === 'Escape' || evt.key === 'Esc')) this.deSelectAll();
     });
 
     this.renderer.listen(window, 'keyup', (evt: KeyboardEvent) => {
-      if (!evt.shiftKey) this.shiftIsActive.next(false);
+      if (!evt.shiftKey && this.shiftIsActive.value != false) this.shiftIsActive.next(false);
     });
   }
   
@@ -114,9 +116,9 @@ export class KndDndService<Item extends object> {
             if (stateItem) stateItem.state.isDragging = true;
           })
         }
-        if (this.dndConfig?.debug) {
-          console.log('itemStates', map);
-        }
+        // if (this.dndConfig?.debug) {
+        //   console.log('itemStates', map);
+        // }
 
         return map;
       }),
