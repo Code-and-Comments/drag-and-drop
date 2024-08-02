@@ -34,11 +34,14 @@ export class KndDndService<Item extends object> {
       else this.drawService.hideDragUI();
     });
 
-    if (this.dndConfig?.debug) {
-      this.shiftIsActive.subscribe(shiftActice => console.log('shiftIsActive', shiftActice));
-      this.latestHoveredItem.subscribe(item => console.log('latestHoveredItem', item));
-      this.latestSelectedItem.subscribe(item => console.log('latestSelectedItem', item));
-    }
+    if (this.dndConfig?.debug) this.setupDebugLogging();
+  }
+
+  private setupDebugLogging() {
+    this.shiftIsActive.subscribe(shiftActice => console.log('shiftIsActive', shiftActice));
+    this.latestHoveredItem.subscribe(item => this.logItem('latestHoveredItem', item));
+    this.latestSelectedItem.subscribe(item => this.logItem('latestSelectedItem', item));
+    this.availableSelectables.subscribe(items => this.logItemArray('availableSelectables', items));
   }
 
   private initTrackKeys() {
@@ -101,6 +104,7 @@ export class KndDndService<Item extends object> {
         // shift hover
         if (shiftIsActive && latestHoveredItem && latestSelectedItem) {
           const shouldShiftSelect = itemsInBetween(allSelectables, latestHoveredItem, latestSelectedItem);
+          if (this.dndConfig?.debug) this.logItemArray('shouldShiftSelect', shouldShiftSelect)
           shouldShiftSelect.forEach(shouldShiftSelectItem => {
             const id = this.selectUniqueIdentifier(shouldShiftSelectItem);
             const stateItem = map.get(id); // retrieves a ref
@@ -116,9 +120,6 @@ export class KndDndService<Item extends object> {
             if (stateItem) stateItem.state.isDragging = true;
           })
         }
-        // if (this.dndConfig?.debug) {
-        //   console.log('itemStates', map);
-        // }
 
         return map;
       }),
@@ -244,4 +245,22 @@ export class KndDndService<Item extends object> {
       filter(i => i != null),
     );
   }
+
+  /**
+   * Helper function to log item
+   * used for debug mode
+  */
+  private logItem(label: string, item: Item | null) {
+    const logOutput = item == null ? item : this.selectUniqueIdentifier(item);
+    console.log(label, logOutput);
+  }
+  
+  /**
+   * Helper function to log item array
+   * used for debug mode
+  */
+  private logItemArray(label: string, items: Item[]) {
+    console.log(label, items.map(this.selectUniqueIdentifier));
+  }
+
 }
