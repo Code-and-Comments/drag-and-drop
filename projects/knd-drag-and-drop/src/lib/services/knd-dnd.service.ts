@@ -111,7 +111,8 @@ export class KndDndService<Item extends object> {
           }
 
           const shouldShiftSelect = itemsInBetween(allSelectables, latestHoveredItem, latestSelectedItem);
-          if (this.dndConfig?.debug) this.logItemArray('shouldShiftSelect', shouldShiftSelect)
+          if (this.dndConfig?.debug) this.logItemArray('shouldShiftSelect', shouldShiftSelect);
+          
           shouldShiftSelect.forEach(shouldShiftSelectItem => {
             const id = this.selectUniqueIdentifier(shouldShiftSelectItem);
             const stateItem = map.get(id); // retrieves a ref

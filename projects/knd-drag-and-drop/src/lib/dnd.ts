@@ -23,10 +23,14 @@ export const dragUIZ = dragabbleZ + 1;
 export function itemsInBetween<T>(items: T[], item1: T, item2: T): T[] {
    const item1Index = items.indexOf(item1);
    const item2Index = items.indexOf(item2);
+   console.log(item1Index, item2Index);
    const start = item1Index > item2Index ? item2Index : item1Index;
    const end = item1Index > item2Index ?  item1Index : item2Index;
+   console.log(start, end);
    // +1 because slice does not include end index
-   return items.slice(start, end + 1);
+   const result = items.slice(start, end + 1);
+   console.log(result);
+   return result
 }
 
 export interface KndItemState {
