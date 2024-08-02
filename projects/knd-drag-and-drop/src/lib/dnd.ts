@@ -20,7 +20,7 @@ export const dragUIZ = dragabbleZ + 1;
 * @param item2 border item 2
 * @return items between borders, including the border items
 */
-export function itemsInBetween<T>(items: T[], item1: T, item2: T): T[] {
+export function itemsInBetween<T>(items: T[], item1: T, item2: T, identify: ((item: T) => string)): T[] {
   console.log(items, item1, item2);
   const item1Index = items.indexOf(item1);
   const item2Index = items.indexOf(item2);
