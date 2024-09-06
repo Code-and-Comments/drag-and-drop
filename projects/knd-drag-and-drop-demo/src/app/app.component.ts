@@ -1,7 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { DropInfo } from 'projects/knd-drag-and-drop/src/lib/dnd';
 import { ModalComponent } from './modal/modal.component';
+import { KndDndService } from 'projects/knd-drag-and-drop/src/public-api';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -12,9 +14,12 @@ export class AppComponent implements OnInit {
   
   items: DemoType[] = [];
   private modalController = inject(ModalController);
+  private dndService = inject(KndDndService<DemoType>);
+  currentSelection: Observable<DemoType[]>;
 
   ngOnInit() {
     this.createItems();
+    this.currentSelection = this.dndService.selectedItems
   }
 
   emptyItems() {
@@ -22,10 +27,14 @@ export class AppComponent implements OnInit {
   }
 
   createItems() {
+    this.items = this.createItemArray(10);
+  }
+
+  createItemArray(amount: number): DemoType[] {
     const items: DemoType[] = [];
-    const arr = Array.from(Array(10)).map((_, i) => i);
+    const arr = Array.from(Array(amount)).map((_, i) => i);
     arr.forEach(index => items.push({ id: `${Math.random()}`, name: `Item ${index}`}));
-    this.items = items;
+    return items
   }
 
   gotDropped(drop: DropInfo<DemoType>)  {

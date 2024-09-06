@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, ReplaySubject, combineLatest, filter, map, shareReplay, take, tap } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, debounceTime, filter, map, shareReplay, take } from 'rxjs';
 import { Injectable, QueryList, Renderer2, RendererFactory2, inject } from '@angular/core';
 import { KndDrawService } from './knd-draw.service';
 import { KndIdentifier, KndItemState, KndMap, createEmptyKndMap, itemsInBetween } from '../dnd';
@@ -9,6 +9,8 @@ import { KNDDND_CONFIG } from '../knd-dnd-configuration';
 export class KndDndService<Item extends object> {
 
   private rendererFactory = inject(RendererFactory2);
+  private dndConfig? = inject(KNDDND_CONFIG, { optional: true});
+
   private renderer: Renderer2;
   private drawService = new KndDrawService();
 
@@ -22,8 +24,6 @@ export class KndDndService<Item extends object> {
   private itemStates: Observable<KndMap<Item>>;
   private availableSelectables = new BehaviorSubject<Item[]>([]);
   
-  private dndConfig? = inject(KNDDND_CONFIG, { optional: true});
-
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(window, null);
     this.initTrackKeys();
@@ -42,6 +42,7 @@ export class KndDndService<Item extends object> {
     this.latestHoveredItem.subscribe(item => this.logItem('latestHoveredItem', item));
     this.latestSelectedItem.subscribe(item => this.logItem('latestSelectedItem', item));
     this.availableSelectables.subscribe(items => this.logItemArray('availableSelectables', items));
+    this.selectedItems.subscribe(items => this.logItemArray('selectedItems', items));
   }
 
   private initTrackKeys() {
@@ -56,44 +57,34 @@ export class KndDndService<Item extends object> {
   }
   
   setAvailableSelectables(queryList: QueryList<SelectableDirective<Item>>) {
-    this.availableSelectables.next(queryList.toArray().map(s => s.kndItem));
-  }
-
-  /**
-   * Select uniquie identifiably property of Item.  
-   * By default the property `id` is used
-  */
-  private selectUniqueIdentifier: ((item: Item) => KndIdentifier) = (item: Item) => {
-    if (this.dndConfig?.selectUniqueIdentifier) {
-      const id = this.dndConfig.selectUniqueIdentifier(item);
-      if (id == null) { 
-        console.error(`Custom selectUniqueIdentifier returned null/undefined, please always return a value.`);
+    const availableItems = queryList.toArray().map(s => s.kndItem);
+    const availableItemsIds = availableItems.map(i => this.selectUniqueIdentifier(i));
+    // remove all selected items that do not exist anymore
+    const currentSelectedItems = this._selectedItems.value;
+    const keys = [...this._selectedItems.value.keys()].forEach(key => {
+      if (!availableItemsIds.includes(key)) {
+        currentSelectedItems.delete(key);
       }
-      return id;
-    }
-    if (!Object.hasOwn(item, 'id')) {
-      console.error(`
-        KndDndService needs a unique identifier to work. 
-        By default property "id", but could not be found in ${item}.
-        Please implement and inject the 'selectUniqueIdentifier' method to select a different unique object property.
-        This can be done via the KNDDND_CONFIG injection token by implementing the KndDndConfig interface
-      `)
-    }
-    return (item as any).id as KndIdentifier;
+    })
+
+    this.availableSelectables.next(availableItems);
+    setTimeout(() => this._selectedItems.next(currentSelectedItems));
   }
 
   private initTrackItemStates() {
     this.itemStates = combineLatest([this.availableSelectables, this._selectedItems, this.shiftIsActive, this.latestHoveredItem, this.latestSelectedItem, this.isDragging]).pipe(
-      map(([allSelectables, selectedItems, shiftIsActive, latestHoveredItem, latestSelectedItem, isDragging]) => {
+      debounceTime(10),
+      map(([availableSelectables, selectedItems, shiftIsActive, latestHoveredItem, latestSelectedItem, isDragging]) => {
         if (this.dndConfig?.debug) console.log('refresh itemStates');
         const map = createEmptyKndMap<Item>();
 
         // create entries for all existing selectables
-        allSelectables.forEach(item => {
+        availableSelectables.forEach(item => {
           const id = this.selectUniqueIdentifier(item);
           const state: KndItemState = { isDragging: false, isShiftHovered: false, isSelected: false }
           map.set(id, { item, state })
         })
+        
 
         // update selected state for all entries
         selectedItems.forEach(selItem => {
@@ -105,11 +96,11 @@ export class KndDndService<Item extends object> {
         // shift hover
         if (shiftIsActive && latestHoveredItem && latestSelectedItem) {
           if (this.dndConfig?.debug) {
-            this.logItemArray('shouldShiftSelect - allSelectables', allSelectables);
+            this.logItemArray('shouldShiftSelect - allSelectables', availableSelectables);
             this.logItem('shouldShiftSelect - latestHoveredItem', latestHoveredItem);
             this.logItem('shouldShiftSelect - latestSelectedItem', latestSelectedItem);
           }
-          const shouldShiftSelect = itemsInBetween(allSelectables, latestHoveredItem, latestSelectedItem, this.selectUniqueIdentifier);
+          const shouldShiftSelect = itemsInBetween(availableSelectables, latestHoveredItem, latestSelectedItem, this.selectUniqueIdentifier);
           if (this.dndConfig?.debug) this.logItemArray('shouldShiftSelect', shouldShiftSelect);
 
           shouldShiftSelect.forEach(shouldShiftSelectItem => {
@@ -180,7 +171,9 @@ export class KndDndService<Item extends object> {
       this.latestSelectedItem.next(null);
     }
     else {
-      console.error(`Unable to deselect item as it was not selected ${item}.`)
+      if (this.dndConfig?.debug) {
+        console.info(`Unable to deselect item as it was not selected ${item}.`)
+      }
     }
   }
 
@@ -237,7 +230,7 @@ export class KndDndService<Item extends object> {
   }
 
   /**
-   * Deselect all item, Removes all items from the dnd context
+   * Get a snaoshot of all selected items
   */
   getAllSelectedItems(): Item[] {
     return Array.from(this._selectedItems.value.values());
@@ -269,6 +262,29 @@ export class KndDndService<Item extends object> {
   */
   private logItemArray(label: string, items: Item[]) {
     console.log(label, items.map(this.selectUniqueIdentifier));
+  }
+
+  /**
+   * Select uniquie identifiably property of Item.  
+   * By default the property `id` is used
+  */
+  private selectUniqueIdentifier: ((item: Item) => KndIdentifier) = (item: Item) => {
+    if (this.dndConfig?.selectUniqueIdentifier) {
+      const id = this.dndConfig.selectUniqueIdentifier(item);
+      if (id == null) { 
+        console.error(`Custom selectUniqueIdentifier returned null/undefined, please always return a value.`);
+      }
+      return id;
+    }
+    if (!Object.hasOwn(item, 'id')) {
+      console.error(`
+        KndDndService needs a unique identifier to work. 
+        By default property "id", but could not be found in ${item}.
+        Please implement and inject the 'selectUniqueIdentifier' method to select a different unique object property.
+        This can be done via the KNDDND_CONFIG injection token by implementing the KndDndConfig interface
+      `)
+    }
+    return (item as any).id as KndIdentifier;
   }
 
 }

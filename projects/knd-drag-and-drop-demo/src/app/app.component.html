@@ -14,4 +14,5 @@
 <button (click)="createItems()">re-create items</button>
 <button (click)="emptyItems()">clear items</button>
 <button (click)="popModal()">pop modal</button>
+<span> Selected: {{ (currentSelection | async)?.length }}</span>
 <br><br><br>
