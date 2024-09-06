@@ -10,8 +10,8 @@
     "noPropertyAccessFromIndexSignature": true,
     "strictPropertyInitialization": false,
     "paths": {
-      "knd-dragAndDrop": [
-        "dist/knd-drag-and-drop"
+      "dragAndDrop": [
+        "dist/drag-and-drop"
       ]
     },
     "noImplicitReturns": true,

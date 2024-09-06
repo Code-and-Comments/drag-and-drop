@@ -3,57 +3,57 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "knd-dragAndDrop": {
+    "dragAndDrop": {
       "projectType": "library",
-      "root": "projects/knd-drag-and-drop",
-      "sourceRoot": "projects/knd-drag-and-drop/src",
+      "root": "projects/drag-and-drop",
+      "sourceRoot": "projects/drag-and-drop/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "projects/knd-drag-and-drop/ng-package.json"
+            "project": "projects/drag-and-drop/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/knd-drag-and-drop/tsconfig.lib.prod.json"
+              "tsConfig": "projects/drag-and-drop/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/knd-drag-and-drop/tsconfig.lib.json"
+              "tsConfig": "projects/drag-and-drop/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
         }
       }
     },
-    "knd-dragAndDrop-demo": {
+    "dragAndDrop-demo": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
           "style": "scss"
         }
       },
-      "root": "projects/knd-drag-and-drop-demo",
-      "sourceRoot": "projects/knd-drag-and-drop-demo/src",
+      "root": "projects/drag-and-drop-demo",
+      "sourceRoot": "projects/drag-and-drop-demo/src",
       "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/knd-drag-and-drop-demo",
-            "index": "projects/knd-drag-and-drop-demo/src/index.html",
-            "main": "projects/knd-drag-and-drop-demo/src/main.ts",
+            "outputPath": "dist/drag-and-drop-demo",
+            "index": "projects/drag-and-drop-demo/src/index.html",
+            "main": "projects/drag-and-drop-demo/src/main.ts",
             "polyfills": [
               "zone.js"
             ],
-            "tsConfig": "projects/knd-drag-and-drop-demo/tsconfig.app.json",
+            "tsConfig": "projects/drag-and-drop-demo/tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              "projects/knd-drag-and-drop-demo/src/favicon.ico",
-              "projects/knd-drag-and-drop-demo/src/assets"
+              "projects/drag-and-drop-demo/src/favicon.ico",
+              "projects/drag-and-drop-demo/src/assets"
             ],
             "styles": [
-              "projects/knd-drag-and-drop-demo/src/styles.scss"
+              "projects/drag-and-drop-demo/src/styles.scss"
             ],
             "scripts": []
           },
@@ -88,10 +88,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "knd-dragAndDrop-demo:build:production"
+              "buildTarget": "dragAndDrop-demo:build:production"
             },
             "development": {
-              "buildTarget": "knd-dragAndDrop-demo:build:development"
+              "buildTarget": "dragAndDrop-demo:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -99,7 +99,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "knd-dragAndDrop-demo:build"
+            "buildTarget": "dragAndDrop-demo:build"
           }
         }
       }

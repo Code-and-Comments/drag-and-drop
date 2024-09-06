@@ -1,0 +1,18 @@
+.wrapper {
+    display: flex;
+    gap: 8px;
+    background-color: red;
+    padding: 16px;
+}
+
+:host {
+    &.dnd-drag-isDragging {
+        opacity: 0.5;
+    }
+    &.dnd-select-isSelected .wrapper {
+        background-color: green;
+    }
+    &.dnd-select-isShiftHovered .wrapper {
+        background-color: yellow;
+    }
+}

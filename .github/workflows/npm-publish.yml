@@ -16,12 +16,12 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: npm ci
       - run: npm i -g @angular/cli@17.0.0
-      - run: ng build knd-dragAndDrop
+      - run: ng build dragAndDrop
       - name: NPM Publish
         run: |
           git config user.email "ci@codeandcomments.at"
           git config user.name "ci"
-          cd dist/knd-drag-and-drop
+          cd dist/drag-and-drop
           npm version "${{  github.ref_name }}"
           npm publish --access public
         env:

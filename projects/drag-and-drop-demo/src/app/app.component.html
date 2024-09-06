@@ -1,0 +1,18 @@
+<div class="cp-drag-wrapper">
+  <cp-drop [dropId]="'1'" (gotDropped)="gotDropped($event)"></cp-drop>
+  <cp-drop [dropId]="'2'" (gotDropped)="gotDropped($event)"></cp-drop>
+  <cp-drop [dropId]="'3'" (gotDropped)="gotDropped($event)"></cp-drop>
+</div>
+
+<br><br><br>
+
+<drag-wrapper class="cp-drag-wrapper">
+  <cp-drag [id]="item.id" *ngFor="let item of items" [item]="item" [dndItem]="item"></cp-drag>
+</drag-wrapper>
+
+<br><br><br>
+<button (click)="createItems()">re-create items</button>
+<button (click)="emptyItems()">clear items</button>
+<button (click)="popModal()">pop modal</button>
+<span> Selected: {{ (currentSelection | async)?.length }}</span>
+<br><br><br>

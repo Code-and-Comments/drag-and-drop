@@ -1,5 +1,5 @@
 {
-  "name": "knd-drag-and-drop",
+  "name": "drag-and-drop",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "buildAndPublish": "ng build knd-dragAndDrop && cd dist/knd-drag-and-drop && npm publish"
+    "buildAndPublish": "ng build dragAndDrop && cd dist/drag-and-drop && npm publish"
   },
   "private": true,
   "dependencies": {
