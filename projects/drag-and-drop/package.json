@@ -20,7 +20,7 @@
   "homepage": "https://github.com/Code-and-Comments/drag-and-drop",
   "peerDependencies": {
     "@angular/common": "^17.0.0",
-    "@angular/core": "^17.0.0"
+    "@angular/core": "^22.0.7"
   },
   "dependencies": {
     "tslib": "^2.3.0"
